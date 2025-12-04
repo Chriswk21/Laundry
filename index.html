@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasir Laundry Mami Marie - Multi Item & Pelunasan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* Light gray background */
+        }
+        /* Styling untuk input dan tombol besar agar mudah disentuh */
+        .large-input {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+        }
+        .large-button {
+            padding: 1rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        /* Custom style untuk pesan history kosong agar lebih menonjol */
+        #no-history-message-container {
+            background-color: #f3f4ff; /* soft purple */
+            border-left: 4px solid #8b5cf6; /* dark purple line */
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="app" class="max-w-xl mx-auto bg-white shadow-xl min-h-screen">
+
+        <header class="p-4 shadow-md bg-blue-600 text-white rounded-b-lg">
+            <h1 class="text-2xl font-extrabold">Kasir Laundry Mami Marie</h1>
+            <p id="header-status" class="text-sm mt-1 font-medium"></p>
+        </header>
+
+        <nav class="flex border-b border-gray-200 sticky top-0 bg-white z-10">
+            <button id="tab-kasir" class="flex-1 py-3 text-lg font-semibold transition duration-150 border-b-4 border-transparent hover:bg-gray-50 text-blue-600 border-blue-600">
+                Kasir Hari Ini
+            </button>
+            <button id="tab-history" class="flex-1 py-3 text-lg font-semibold text-gray-600 transition duration-150 border-b-4 border-transparent hover:bg-gray-50">
+                History Harian
+            </button>
+        </nav>
+
+        <main class="p-4">
+
+            <section id="view-kasir" class="tab-content space-y-6">
+                
+                <div class="p-4 bg-gray-100 rounded-xl shadow-inner flex justify-between gap-3">
+                    <button id="btn-start-day" class="large-button flex-1 bg-green-500 text-white hover:bg-green-600">
+                        Mulai Hari
+                    </button>
+                    <button id="btn-end-day" class="large-button flex-1 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Akhiri Hari
+                    </button>
+                </div>
+
+                <div id="no-active-day-message" class="text-center p-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg">
+                    <p class="text-lg font-semibold">Belum ada hari aktif.</p>
+                    <p class="mt-1">Tekan tombol 'Mulai Hari' untuk mulai mencatat transaksi.</p>
+                </div>
+
+                <div id="nota-header-container" class="space-y-4 border p-4 rounded-xl shadow-lg bg-indigo-50">
+                    <h2 class="text-xl font-bold text-indigo-700">Header Nota</h2>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="nota" class="block text-sm font-medium text-gray-700">Nomor Nota</label>
+                            <input type="text" id="nota" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Cth: 001">
+                        </div>
+                        <div>
+                            <label for="customer" class="block text-sm font-medium text-gray-700">Nama Pelanggan</label>
+                            <input type="text" id="customer" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Boleh kosong">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="active-nota-items" class="space-y-3 p-4 border rounded-xl shadow-lg bg-white hidden">
+                    <h2 class="text-xl font-bold text-gray-700">Item di Nota (<span id="active-item-count">0</span>)</h2>
+                    <ul id="active-item-list" class="space-y-2 border-b pb-3">
+                        <li id="no-item-message" class="text-gray-500 italic text-sm">Belum ada item di nota.</li>
+                    </ul>
+
+                    <p class="flex justify-between text-xl font-extrabold pt-2">
+                        <span>TOTAL NOTA:</span>
+                        <span id="active-nota-total" class="text-red-600">Rp 0</span>
+                    </p>
+                </div>
+
+
+                <div id="transaction-form-container" class="space-y-4 border p-4 rounded-xl shadow-lg bg-blue-50">
+                    <h2 class="text-xl font-bold text-blue-700">Input Item/Layanan Baru</h2>
+
+                    <div>
+                        <label for="service" class="block text-sm font-medium text-gray-700">Jenis Layanan</label>
+                        <select id="service" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Cuci Kering Lipat">Cuci Kering Lipat (Tiered)</option>
+                            <option value="Cuci Kering Setrika">Cuci Kering Setrika (Tiered)</option>
+                            <option value="Cuci Saja">Cuci Saja (Rp 4rb/kg)</option>
+                            <option value="Setrika Saja">Setrika Saja (Rp 6rb/kg)</option>
+                            <option value="Boneka/Tas">Boneka/Tas (Satuan, Tiered Ukuran)</option>
+                            <option value="Selimut">Selimut (Satuan)</option>
+                            <option value="Bed Cover Matras">Bed Cover/Matras (Satuan)</option>
+                        </select>
+                    </div>
+
+                    <div id="kiloan-inputs" class="grid grid-cols-3 gap-3">
+                        <div class="col-span-1">
+                            <label for="weight" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
+                            <input type="number" step="0.1" id="weight" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Cth: 3.5">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="pricePerKg" class="block text-sm font-medium text-gray-700">Harga/kg (Override)</label>
+                            <input type="number" id="pricePerKg" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div id="satuan-inputs" class="grid grid-cols-3 gap-3 hidden">
+                        <div class="col-span-1">
+                            <label for="qty" class="block text-sm font-medium text-gray-700">Jumlah (pc)</label>
+                            <input type="number" id="qty" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Cth: 2">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="size" class="block text-sm font-medium text-gray-700">Ukuran</label>
+                            <select id="size" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-yellow-100 rounded-lg border border-yellow-300">
+                        <p class="text-lg font-bold text-yellow-800 flex justify-between">
+                            <span>TOTAL ITEM:</span>
+                            <span id="calculated-total">Rp 0</span>
+                        </p>
+                    </div>
+                    
+                    <button id="btn-add-item" class="large-button w-full bg-blue-600 text-white hover:bg-blue-700">
+                        Tambahkan Item ke Nota
+                    </button>
+                </div>
+
+                <div id="save-nota-container" class="space-y-3 p-4 border rounded-xl shadow-lg bg-green-50 hidden">
+                    <h2 class="text-xl font-bold text-green-700">Selesaikan Nota</h2>
+
+                    <div class="space-y-3 p-3 bg-white rounded-lg border">
+                        <label class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center space-x-2 text-base font-semibold">
+                                <input type="radio" name="paymentMethod" value="CASH" checked class="form-radio text-blue-600 h-5 w-5">
+                                <span>CASH</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-base font-semibold">
+                                <input type="radio" name="paymentMethod" value="QRIS" class="form-radio text-blue-600 h-5 w-5">
+                                <span>QRIS</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-base font-semibold">
+                                <input type="radio" name="paymentMethod" value="TRANSFER" class="form-radio text-blue-600 h-5 w-5">
+                                <span>TRANSFER</span>
+                            </label>
+                        </div>
+
+                        <label class="flex items-center space-x-2 mt-2 font-semibold text-lg text-green-700">
+                            <input type="checkbox" id="isPaid" checked class="form-checkbox h-6 w-6 text-green-600 rounded">
+                            <span>Sudah Bayar / Lunas</span>
+                        </label>
+                    </div>
+                    
+                    <button id="btn-save-nota" class="large-button w-full bg-green-600 text-white hover:bg-green-700">
+                        SIMPAN NOTA (<span id="save-nota-display-total">Rp 0</span>)
+                    </button>
+                    <button id="btn-cancel-nota" class="large-button w-full bg-red-400 text-white hover:bg-red-500">
+                        BATALKAN NOTA
+                    </button>
+                </div>
+
+
+                <div id="recap-container" class="space-y-2 p-4 bg-indigo-50 rounded-xl shadow-lg border border-indigo-200">
+                    <h2 class="text-xl font-bold text-indigo-700 border-b pb-2 mb-3">Rekap Hari Ini (<span id="recap-date"></span>)</h2>
+                    <p class="flex justify-between text-base font-medium">
+                        <span class="text-gray-600">Jumlah Nota:</span>
+                        <span id="recap-total-tx" class="font-bold text-indigo-700">0</span>
+                    </p>
+                    <div class="border-t border-indigo-200 pt-2 space-y-1">
+                        <p class="flex justify-between text-sm">
+                            <span class="text-gray-500 pl-4">Lunas CASH:</span>
+                            <span id="recap-cash" class="font-semibold text-green-600">Rp 0</span>
+                        </p>
+                        <p class="flex justify-between text-sm">
+                            <span class="text-gray-500 pl-4">Lunas QRIS:</span>
+                            <span id="recap-qris" class="font-semibold text-green-600">Rp 0</span>
+                        </p>
+                        <p class="flex justify-between text-sm">
+                            <span class="text-gray-500 pl-4">Lunas TRANSFER:</span>
+                            <span id="recap-transfer" class="font-semibold text-green-600">Rp 0</span>
+                        </p>
+                    </div>
+                    <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-indigo-300">
+                        <span class="text-indigo-800">TOTAL SEMUA (LUNAS):</span>
+                        <span id="recap-total-all" class="text-indigo-800">Rp 0</span>
+                    </p>
+                    
+                    <div class="border-t border-indigo-200 pt-3 space-y-1 text-sm">
+                        <p class="flex justify-between">
+                            <span class="text-gray-600">Belum Bayar:</span>
+                            <span id="recap-unpaid" class="font-semibold text-red-500">0 Nota</span>
+                        </p>
+                        <p class="flex justify-between text-base font-bold">
+                            <span class="text-gray-800">Total Belum Lunas:</span>
+                            <span id="recap-unpaid-amount" class="font-bold text-red-600">Rp 0</span> 
+                        </p>
+                        <p class="flex justify-between">
+                            <span class="text-gray-600">Status PROSES:</span>
+                            <span id="recap-proses">0</span>
+                        </p>
+                        <p class="flex justify-between">
+                            <span class="text-gray-600">Status SELESAI (Belum Diambil):</span>
+                            <span id="recap-selesai">0</span>
+                        </p>
+                        <p class="flex justify-between">
+                            <span class="text-gray-600">Status DIAMBIL:</span>
+                            <span id="recap-diambil" class="text-green-600">0</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div id="transaction-list-container">
+                    <h2 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota (<span id="list-count">0</span>)</h2>
+                    <ul id="transaction-list" class="space-y-3">
+                        </ul>
+                </div>
+            </section>
+
+            <section id="view-history" class="tab-content hidden space-y-6">
+                <div id="history-list-view">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-700">Daftar History Harian</h2>
+                    
+                    <div class="p-4 bg-gray-50 rounded-xl shadow-inner mb-4 space-y-3">
+                        <h3 class="text-lg font-bold text-gray-700 border-b pb-2">Manajemen Data Lokal</h3>
+                        <div class="flex gap-3">
+                            <button id="btn-export-data" class="large-button flex-1 bg-purple-500 text-white hover:bg-purple-600 text-sm">
+                                ⬇️ Download Semua History
+                            </button>
+                            <label for="file-import" class="large-button flex-1 bg-orange-500 text-white hover:bg-orange-600 text-sm text-center cursor-pointer">
+                                ⬆️ Masukkan Data History
+                            </label>
+                            <input type="file" id="file-import" accept=".json" class="hidden">
+                        </div>
+                        <p class="text-xs text-gray-600">Pastikan Anda selalu melakukan **Export Data** secara berkala sebagai cadangan. **Import** akan menimpa semua data transaksi yang ada saat ini.</p>
+                    </div>
+
+                    <ul id="history-day-list" class="space-y-4">
+                        <div id="no-history-message-container" class="text-center p-6 text-purple-800 rounded-lg" style="display:none;">
+                            <p id="no-history-message" class="text-lg font-semibold italic">Belum ada history transaksi yang tersimpan.</p>
+                        </div>
+                    </ul>
+                </div>
+                
+                <div id="history-detail-view" class="hidden">
+                    <button id="btn-back-history" class="large-button bg-gray-500 text-white mb-4 hover:bg-gray-600 text-sm">
+                        ← Kembali ke Daftar History
+                    </button>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-700" id="detail-history-title">Detail Transaksi: </h2>
+                        <button id="btn-delete-history-day" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                            Hapus Hari Ini
+                        </button>
+                    </div>
+                    
+                    <div id="detail-recap-container" class="space-y-2 p-4 bg-purple-50 rounded-xl shadow-lg border border-purple-200">
+                        <h3 class="text-xl font-bold text-purple-700 border-b pb-2 mb-3">Rekap Detail History</h3>
+                        <p class="flex justify-between text-base font-medium">
+                            <span class="text-gray-600">Jumlah Nota:</span>
+                            <span id="detail-recap-total-tx" class="font-bold text-purple-700">0</span>
+                        </p>
+                        <div class="border-t border-purple-200 pt-2 space-y-1">
+                            <p class="flex justify-between text-sm">
+                                <span class="text-gray-500 pl-4">Lunas CASH:</span>
+                                <span id="detail-recap-cash" class="font-semibold text-green-600">Rp 0</span>
+                            </p>
+                            <p class="flex justify-between text-sm">
+                                <span class="text-gray-500 pl-4">Lunas QRIS:</span>
+                                <span id="detail-recap-qris" class="font-semibold text-green-600">Rp 0</span>
+                            </p>
+                            <p class="flex justify-between text-sm">
+                                <span class="text-gray-500 pl-4">Lunas TRANSFER:</span>
+                                <span id="detail-recap-transfer" class="font-semibold text-green-600">Rp 0</span>
+                            </p>
+                        </div>
+                        <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-purple-300">
+                            <span class="text-purple-800">TOTAL SEMUA (LUNAS):</span>
+                            <span id="detail-recap-total-all" class="text-purple-800">Rp 0</span>
+                        </p>
+                        
+                        <div class="border-t border-purple-200 pt-3 space-y-1 text-sm">
+                            <p class="flex justify-between">
+                                <span class="text-gray-600">Belum Bayar:</span>
+                                <span id="detail-recap-unpaid" class="font-semibold text-red-500">0 Nota</span>
+                            </p>
+                            <p class="flex justify-between text-base font-bold">
+                                <span class="text-gray-800">Total Belum Lunas:</span>
+                                <span id="detail-recap-unpaid-amount" class="font-bold text-red-600">Rp 0</span> 
+                            </p>
+                            <p class="flex justify-between">
+                                <span class="text-gray-600">Status PROSES:</span>
+                                <span id="detail-recap-proses">0</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span class="text-gray-600">Status SELESAI (Belum Diambil):</span>
+                                <span id="detail-recap-selesai">0</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span class="text-gray-600">Status DIAMBIL:</span>
+                                <span id="detail-recap-diambil" class="text-green-600">0</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota History</h3>
+                        <ul id="history-transaction-list" class="space-y-3">
+                            </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4">
+            <h3 id="modal-title" class="text-xl font-bold text-gray-800">Notifikasi</h3>
+            <p id="modal-message" class="text-gray-700"></p>
+            <div id="modal-buttons" class="flex justify-end gap-3">
+                <button id="modal-cancel" class="py-2 px-4 large-button bg-gray-300 text-gray-800 hover:bg-gray-400 text-base">Batal</button>
+                <button id="modal-confirm" class="py-2 px-4 large-button bg-blue-600 text-white hover:bg-blue-700 text-base">Ya</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pay-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4">
+            <h3 class="text-xl font-bold text-gray-800">Pelunasan Nota</h3>
+            <p class="text-gray-700" id="pay-modal-message">Pilih metode pembayaran untuk melunasi nota:</p>
+            <p class="text-2xl font-extrabold text-red-600" id="pay-modal-total"></p>
+            
+            <div class="space-y-3 p-3 bg-gray-50 rounded-lg border">
+                <label class="block text-sm font-medium text-gray-700">Metode Pelunasan</label>
+                <div class="flex flex-wrap gap-4">
+                    <label class="flex items-center space-x-2 text-base font-semibold">
+                        <input type="radio" name="payMethod" value="CASH" checked class="form-radio text-green-600 h-5 w-5">
+                        <span>CASH</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-base font-semibold">
+                        <input type="radio" name="payMethod" value="QRIS" class="form-radio text-green-600 h-5 w-5">
+                        <span>QRIS</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-base font-semibold">
+                        <input type="radio" name="payMethod" value="TRANSFER" class="form-radio text-green-600 h-5 w-5">
+                        <span>TRANSFER</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-between gap-3">
+                <button id="pay-modal-cancel" class="py-2 px-4 large-button flex-1 bg-gray-300 text-gray-800 hover:bg-gray-400 text-base">Batal</button>
+                <button id="pay-modal-confirm" data-txid="" class="py-2 px-4 large-button flex-1 bg-green-600 text-white hover:bg-green-700 text-base">Lunasi Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI APLIKASI ---
+        const STORAGE_ORDERS_KEY = 'laundry_mami_orders_multi'; 
+        const STORAGE_ACTIVE_DAY_KEY = 'laundry_mami_active_day_multi';
+        const STORAGE_ACTIVE_NOTA_KEY = 'laundry_mami_active_nota'; 
+
+        // Definisi Harga Berdasarkan Gambar dari User
+        const PRICE_DATA = {
+            // Skema Harga Kiloan (TIERED)
+            'Cuci Kering Lipat': {
+                type: 'kiloan_tiered',
+                tiers: [
+                    { min: 0.1, max: 3.5, price: 25000, perKg: 0 }, 
+                    { min: 3.6, max: 5.5, price: 35000, perKg: 0 }, 
+                    { min: 5.6, max: 7.0, price: 50000, perKg: 0 },
+                    { min: 7.1, max: 9.0, price: 60000, perKg: 0 },
+                    { min: 9.1, max: 11.0, price: 70000, perKg: 0 },
+                    { min: 11.1, max: 12.5, price: 85000, perKg: 0 },
+                    { min: 12.6, max: 14.5, price: 95000, perKg: 0 },
+                    { min: 14.6, max: 16.5, price: 105000, perKg: 0 },
+                    { min: 16.6, max: 20.0, price: 130000, perKg: 0 },
+                    { min: 20.1, max: 22.0, price: 140000, perKg: 0 },
+                    { min: 22.1, max: 25.5, price: 165000, perKg: 0 },
+                    { min: 25.6, max: 27.5, price: 175000, perKg: 0 }
+                ]
+            },
+            'Cuci Kering Setrika': {
+                type: 'kiloan_tiered',
+                tiers: [
+                    { min: 0.1, max: 3.5, price: 30000, perKg: 0 }, 
+                    { min: 3.6, max: 5.5, price: 45000, perKg: 0 }, 
+                    { min: 5.6, max: 7.0, price: 60000, perKg: 0 },
+                    { min: 7.1, max: 9.0, price: 75000, perKg: 0 },
+                    { min: 9.1, max: 11.0, price: 90000, perKg: 0 },
+                    { min: 11.1, max: 14.5, price: 120000, perKg: 0 },
+                    { min: 14.6, max: 16.5, price: 135000, perKg: 0 },
+                    { min: 16.6, max: 20.0, price: 165000, perKg: 0 },
+                    { min: 20.1, max: 22.0, price: 180000, perKg: 0 },
+                    { min: 22.1, max: 25.5, price: 210000, perKg: 0 },
+                    { min: 25.6, max: 27.5, price: 225000, perKg: 0 },
+                    { min: 27.6, max: 31.0, price: 255000, perKg: 0 } // Tambahan tier baru
+                ]
+            },
+
+            // Skema Harga Kiloan (STANDAR per kg)
+            'Cuci Saja': { type: 'kiloan_standard', pricePerKg: 4000 },
+            'Setrika Saja': { type: 'kiloan_standard', pricePerKg: 6000 },
+
+            // Skema Harga Satuan
+            'Boneka/Tas': {
+                type: 'satuan',
+                rates: {
+                    'Kecil': 20000,
+                    'Sedang': 30000,
+                    'Besar': 40000,
+                    'Super Besar': 50000
+                },
+                // Definisi ukuran untuk dynamic dropdown
+                sizes: {
+                    'Kecil': 'Kecil (Rp 20.000)',
+                    'Sedang': 'Sedang (Rp 30.000)',
+                    'Besar': 'Besar (Rp 40.000)',
+                    'Super Besar': 'Super Besar (Rp 50.000)'
+                }
+            },
+
+            'Selimut': {
+                type: 'satuan',
+                rates: {
+                    'Kecil': 10000, 
+                    'Besar': 15000,
+                },
+                sizes: {
+                    'Kecil': 'Kecil (Rp 10.000)',
+                    'Besar': 'Besar (Rp 15.000)'
+                }
+            },
+            'Bed Cover Matras': {
+                type: 'satuan',
+                rates: {
+                    'Kecil': 25000, 
+                    'Besar': 35000,
+                },
+                sizes: {
+                    'Kecil': 'Kecil (Rp 25.000)',
+                    'Besar': 'Besar (Rp 35.000)'
+                }
+            }
+        };
+
+        // --- STATE GLOBAL ---
+        let orders = []; // Array of all finalized notes
+        let activeDay = null; // String 'YYYY-MM-DD' or null
+        let activeNota = { // Nota yang sedang diinput/dikerjakan
+            id: null,
+            nota: '',
+            customer: '',
+            total: 0,
+            items: [] // Array of {service, weight, qty, size, total, originalTotal, isGratis, pricePerKg, itemType}
+        }; 
+        let currentView = 'kasir'; 
+        let currentHistoryDate = null; 
+
+        // --- UTILITY FUNCTIONS ---
+
+        /**
+         * Mengambil tanggal dan jam saat ini dalam format YYYY-MM-DD HH:MM:SS.
+         */
+        function getCurrentDateTimeString() {
+            const now = new Date();
+            const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
+            const time = now.toTimeString().slice(0, 8); // HH:MM:SS
+            return `${date} ${time}`;
+        }
+
+        /**
+         * Mengambil tanggal hari ini dalam format YYYY-MM-DD.
+         */
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        /**
+         * Memformat angka menjadi format Rupiah.
+         */
+        function formatRupiah(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        /**
+         * Mengambil data dari localStorage dan menginisialisasi state global.
+         */
+        function loadData() {
+            try {
+                const storedOrders = localStorage.getItem(STORAGE_ORDERS_KEY);
+                orders = storedOrders ? JSON.parse(storedOrders) : [];
+                const storedActiveNota = localStorage.getItem(STORAGE_ACTIVE_NOTA_KEY);
+                if (storedActiveNota) {
+                    activeNota = JSON.parse(storedActiveNota);
+                }
+            } catch (error) {
+                console.error("Gagal memuat data dari localStorage:", error);
+                orders = [];
+            }
+            activeDay = localStorage.getItem(STORAGE_ACTIVE_DAY_KEY) || null;
+            orders.sort((a, b) => b.id - a.id);
+        }
+
+        /**
+         * Menyimpan data state global ke localStorage.
+         */
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+                if (activeDay) {
+                    localStorage.setItem(STORAGE_ACTIVE_DAY_KEY, activeDay);
+                } else {
+                    localStorage.removeItem(STORAGE_ACTIVE_DAY_KEY);
+                }
+                
+                // Hanya simpan activeNota jika ada item di dalamnya
+                if (activeNota.items.length > 0 || activeNota.nota || activeNota.customer) {
+                    localStorage.setItem(STORAGE_ACTIVE_NOTA_KEY, JSON.stringify(activeNota));
+                } else {
+                    localStorage.removeItem(STORAGE_ACTIVE_NOTA_KEY);
+                }
+
+            } catch (error) {
+                console.error("Gagal menyimpan data ke localStorage:", error);
+            }
+        }
+
+        /**
+         * Hitung ulang total nota aktif dari item-item yang ada.
+         */
+        function recalculateActiveNotaTotal() {
+            activeNota.total = activeNota.items.reduce((sum, item) => sum + item.total, 0);
+        }
+
+        /**
+         * Reset state nota aktif.
+         */
+        function resetActiveNota() {
+            activeNota = {
+                id: null,
+                nota: '',
+                customer: '',
+                total: 0,
+                items: []
+            };
+            // Reset input form
+            document.getElementById('nota').value = '';
+            document.getElementById('customer').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('qty').value = '';
+            document.getElementById('calculated-total').textContent = formatRupiah(0);
+            
+            // Re-render form dan list item
+            renderActiveNotaItems();
+            setPriceOnServiceChange();
+        }
+
+
+        /**
+         * Menampilkan modal kustom (alert/confirm).
+         */
+        function customModal(title, message, isConfirm = false, confirmText = "Lanjutkan") {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').innerHTML = message;
+            
+            const btnCancel = document.getElementById('modal-cancel');
+            const btnConfirm = document.getElementById('modal-confirm');
+            const btnContainer = document.getElementById('modal-buttons');
+
+            btnConfirm.textContent = confirmText;
+            btnConfirm.classList.remove('bg-blue-600', 'bg-red-600', 'hover:bg-blue-700', 'hover:bg-red-700');
+            btnConfirm.classList.add(isConfirm ? 'bg-red-600' : 'bg-blue-600', isConfirm ? 'hover:bg-red-700' : 'hover:bg-blue-700');
+            
+            btnContainer.style.justifyContent = isConfirm ? 'space-between' : 'flex-end';
+            btnCancel.style.display = isConfirm ? 'inline-block' : 'none';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            return new Promise(resolve => {
+                const confirmHandler = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resolve(true);
+                    cleanUpListeners();
+                };
+                
+                const cancelHandler = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resolve(false);
+                    cleanUpListeners();
+                };
+                
+                const cleanUpListeners = () => {
+                    btnConfirm.removeEventListener('click', confirmHandler);
+                    btnCancel.removeEventListener('click', cancelHandler);
+                };
+
+                btnConfirm.addEventListener('click', confirmHandler);
+                if (isConfirm) {
+                    btnCancel.addEventListener('click', cancelHandler);
+                }
+            });
+        }
+
+        /**
+         * Fungsi helper untuk mengontrol tampilan metode pembayaran (CASH/QRIS/TRANSFER)
+         * berdasarkan status checkbox "Sudah Bayar / Lunas".
+         */
+        function togglePaymentMethodVisibility() {
+            const isPaidCheckbox = document.getElementById('isPaid');
+            // Container radio button dan labelnya
+            const paymentMethodsContainer = document.querySelector('#save-nota-container .space-y-3.p-3.bg-white.rounded-lg.border div.flex.flex-wrap.gap-4');
+            const paymentMethodLabel = document.querySelector('#save-nota-container .space-y-3.p-3.bg-white.rounded-lg.border label.block');
+            
+            if (isPaidCheckbox.checked) {
+                // Jika Lunas, tampilkan pilihan metode pembayaran
+                if (paymentMethodsContainer) paymentMethodsContainer.classList.remove('hidden');
+                if (paymentMethodLabel) paymentMethodLabel.classList.remove('hidden');
+                // Pastikan input radio button diaktifkan
+                document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => radio.disabled = false);
+            } else {
+                // Jika Belum Lunas, sembunyikan pilihan metode pembayaran
+                if (paymentMethodsContainer) paymentMethodsContainer.classList.add('hidden');
+                if (paymentMethodLabel) paymentMethodLabel.classList.add('hidden');
+                // Nonaktifkan radio button agar nilainya tidak ikut tersimpan saat nota belum lunas
+                document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => radio.disabled = true);
+            }
+        }
+
+        // --- LOGIKA UTAMA RENDER & KONTROL ---
+
+        /**
+         * Mengganti tampilan utama aplikasi.
+         */
+        function switchView(newView, detailDate = null) {
+            currentView = newView;
+            currentHistoryDate = detailDate;
+            
+            // 1. Atur tampilan tab navigasi
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.add('text-gray-600');
+            });
+            document.getElementById(`tab-${currentView}`).classList.add('border-blue-600', 'text-blue-600');
+            document.getElementById(`tab-${currentView}`).classList.remove('text-gray-600');
+            
+            // 2. Tampilkan view yang aktif (kasir atau history)
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const activeViewElement = document.getElementById(`view-${currentView}`);
+            if (activeViewElement) activeViewElement.classList.remove('hidden');
+
+
+            // 3. Jika masuk ke History, atur sub-view dan render
+            if (newView === 'history') {
+                const historyListView = document.getElementById('history-list-view');
+                const historyDetailView = document.getElementById('history-detail-view');
+                
+                if (detailDate) {
+                    historyListView.classList.add('hidden');
+                    historyDetailView.classList.remove('hidden');
+                    renderHistoryDetail(detailDate);
+                } else {
+                    historyListView.classList.remove('hidden');
+                    historyDetailView.classList.add('hidden');
+                    renderHistoryList(); 
+                }
+            }
+
+            // 4. Render konten utama (Header dan Kasir Hari Ini)
+            renderAppContent(); 
+        }
+
+        /**
+         * Menggambar ulang konten non-switching (header, rekap kasir) berdasarkan state terbaru.
+         */
+        function renderAppContent() {
+            // 1. UPDATE HEADER
+            const statusText = activeDay 
+                ? `Hari aktif: ${activeDay}` 
+                : "Status: Belum mulai hari";
+            document.getElementById('header-status').textContent = statusText;
+
+            // 2. KONTROL HARI DAN FORM KASIR HARI INI
+            const isDayActive = !!activeDay;
+            const notaHeaderContainer = document.getElementById('nota-header-container');
+            const itemFormContainer = document.getElementById('transaction-form-container');
+            const activeNotaContainer = document.getElementById('active-nota-items');
+            const saveNotaContainer = document.getElementById('save-nota-container');
+            const noDayMessage = document.getElementById('no-active-day-message');
+            const btnEndDay = document.getElementById('btn-end-day');
+            const transactionListContainer = document.getElementById('transaction-list-container');
+            const recapContainer = document.getElementById('recap-container');
+
+            btnEndDay.disabled = !isDayActive;
+
+            if (isDayActive) {
+                notaHeaderContainer.style.display = 'block';
+                itemFormContainer.style.display = 'block';
+                noDayMessage.style.display = 'none';
+                recapContainer.style.display = 'block';
+                transactionListContainer.style.display = 'block';
+                
+                // Panggil fungsi kontrol visibility metode pembayaran saat merender
+                togglePaymentMethodVisibility(); 
+
+                // Tampilkan ringkasan nota aktif jika ada item
+                if (activeNota.items.length > 0) {
+                    activeNotaContainer.classList.remove('hidden');
+                    saveNotaContainer.classList.remove('hidden');
+                    document.getElementById('save-nota-display-total').textContent = formatRupiah(activeNota.total);
+                } else {
+                    activeNotaContainer.classList.add('hidden');
+                    saveNotaContainer.classList.add('hidden');
+                }
+                
+                renderActiveNotaItems();
+                renderKasirToday();
+            } else {
+                notaHeaderContainer.style.display = 'none';
+                itemFormContainer.style.display = 'none';
+                activeNotaContainer.classList.add('hidden');
+                saveNotaContainer.classList.add('hidden');
+                noDayMessage.style.display = 'block';
+                recapContainer.style.display = 'none';
+                transactionListContainer.style.display = 'none';
+            }
+        }
+
+        /**
+         * Merender daftar item dalam nota yang sedang aktif.
+         */
+        function renderActiveNotaItems() {
+            const itemListElement = document.getElementById('active-item-list');
+            itemListElement.innerHTML = '';
+            document.getElementById('active-item-count').textContent = activeNota.items.length;
+            document.getElementById('active-nota-total').textContent = formatRupiah(activeNota.total);
+
+            if (activeNota.items.length === 0) {
+                 itemListElement.innerHTML = '<li id="no-item-message" class="text-gray-500 italic text-sm">Belum ada item di nota.</li>';
+                return;
+            }
+
+            activeNota.items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'p-2 bg-gray-50 rounded-lg flex justify-between items-center';
+                
+                let detailText = '';
+                if (item.itemType === 'satuan') {
+                    detailText = `${item.qty} pc ${item.service} (${item.size})`;
+                } else {
+                    let unitInfo = item.itemType === 'kiloan_tiered' ? `(Tiered)` : `${formatRupiah(item.pricePerKg)}/kg`;
+                    detailText = `${item.weight} kg ${item.service} @ ${unitInfo}`;
+                }
+
+                let priceDisplay = item.isGratis 
+                    ? `<span class="text-sm font-bold text-green-600">GRATIS</span>`
+                    : `<span class="text-sm font-bold text-red-600">${formatRupiah(item.total)}</span>`;
+                
+                let gratisButtonClass = item.isGratis
+                    ? 'btn-toggle-gratis text-white bg-green-500 hover:bg-green-600 text-xs py-1 px-2 rounded font-bold'
+                    : 'btn-toggle-gratis text-gray-500 hover:text-gray-700 text-sm';
+                let gratisButtonText = item.isGratis ? '✓' : 'O';
+
+                li.innerHTML = `
+                    <span class="text-sm text-gray-800 font-medium">${index + 1}. ${detailText}</span>
+                    <div class="flex items-center space-x-2">
+                        ${priceDisplay}
+                        <button data-index="${index}" class="${gratisButtonClass}">
+                            ${gratisButtonText}
+                        </button>
+                        <button data-index="${index}" class="btn-delete-item text-red-400 hover:text-red-600 text-sm">
+                            ×
+                        </button>
+                    </div>
+                `;
+                itemListElement.appendChild(li);
+            });
+            
+            // Re-attach listener untuk tombol hapus item
+            document.querySelectorAll('.btn-delete-item').forEach(btn => {
+                btn.addEventListener('click', deleteItemFromActiveNota);
+            });
+
+            // Re-attach listener untuk tombol gratis item
+            document.querySelectorAll('.btn-toggle-gratis').forEach(btn => {
+                btn.addEventListener('click', toggleItemGratisStatus);
+            });
+        }
+
+        /**
+         * Merender daftar nota dan rekap untuk Hari Aktif.
+         */
+        function renderKasirToday() {
+            const todayOrders = orders.filter(tx => tx.date === activeDay);
+            const recap = calculateRecap(todayOrders);
+            
+            // Update Recap
+            document.getElementById('recap-date').textContent = activeDay;
+            document.getElementById('recap-total-tx').textContent = recap.totalTx;
+            document.getElementById('recap-cash').textContent = formatRupiah(recap.cash);
+            document.getElementById('recap-qris').textContent = formatRupiah(recap.qris);
+            document.getElementById('recap-transfer').textContent = formatRupiah(recap.transfer);
+            document.getElementById('recap-total-all').textContent = formatRupiah(recap.totalAllPaid);
+            document.getElementById('recap-unpaid').textContent = `${recap.unpaid} Nota`;
+            document.getElementById('recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
+            document.getElementById('recap-proses').textContent = recap.statusCount.PROSES;
+            document.getElementById('recap-selesai').textContent = recap.statusCount.SELESAI;
+            document.getElementById('recap-diambil').textContent = recap.statusCount.DIAMBIL;
+
+            // Update List
+            const listElement = document.getElementById('transaction-list');
+            listElement.innerHTML = ''; // Kosongkan list
+            document.getElementById('list-count').textContent = todayOrders.length;
+            
+            if (todayOrders.length === 0) {
+                listElement.innerHTML = '<p class="text-gray-500 italic p-3 text-center">Belum ada nota hari ini.</p>';
+            }
+
+            todayOrders.forEach(tx => {
+                listElement.appendChild(createNotaListItem(tx));
+            });
+        }
+
+        /**
+         * Menghitung rekapitulasi dari array Nota.
+         */
+        function calculateRecap(transactionList) {
+            const recap = {
+                totalTx: transactionList.length,
+                cash: 0,
+                qris: 0,
+                transfer: 0,
+                totalAllPaid: 0,
+                unpaid: 0,
+                totalUnpaidAmount: 0, 
+                statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0 }
+            };
+
+            transactionList.forEach(tx => {
+                if (tx.isPaid || tx.total === 0) { 
+                    if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
+                    if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
+                    if (tx.paymentMethod === 'TRANSFER') recap.transfer += tx.total;
+                    if (tx.paymentMethod === 'GRATIS') recap.totalAllPaid += 0; // Tidak menambah pemasukan
+                } else {
+                    recap.unpaid++;
+                    recap.totalUnpaidAmount += tx.total; 
+                }
+                
+                if (tx.status in recap.statusCount) {
+                    recap.statusCount[tx.status]++;
+                }
+            });
+            
+            recap.totalAllPaid = recap.cash + recap.qris + recap.transfer;
+            return recap;
+        }
+
+        /**
+         * Membuat elemen daftar untuk satu Nota.
+         */
+        function createNotaListItem(tx, isReadOnly = false) { // isReadOnly = true jika dipanggil dari History List
+            const li = document.createElement('li');
+            li.id = `tx-${tx.id}`;
+            const isPaid = tx.isPaid || tx.total === 0; // Nota gratis otomatis lunas
+            li.className = `p-4 border rounded-xl shadow-sm ${isPaid ? 'bg-green-50' : 'bg-red-50'} space-y-2`;
+
+            // Judul Nota & Total
+            const header = document.createElement('div');
+            header.className = 'flex justify-between items-center border-b pb-2 mb-2';
+            const notaDisplay = tx.nota ? `#${tx.nota} ` : '';
+            header.innerHTML = `
+                <p class="text-base font-bold text-gray-800">${notaDisplay}${tx.customer}</p>
+                <p class="text-lg font-extrabold ${isPaid ? 'text-green-700' : 'text-red-700'}">${formatRupiah(tx.total)}</p>
+            `;
+            li.appendChild(header);
+
+            // Detail Item
+            const itemDetails = document.createElement('ul');
+            itemDetails.className = 'list-disc ml-4 space-y-0.5';
+            tx.items.forEach(item => {
+                const itemLi = document.createElement('li');
+                itemLi.className = 'text-sm text-gray-600';
+                
+                let itemText = '';
+                if (item.itemType === 'satuan') {
+                    itemText = `${item.service}: ${item.qty} pc (${item.size})`;
+                } else {
+                    itemText = `${item.service}: ${item.weight} kg`;
+                }
+                
+                let priceText = item.isGratis 
+                    ? `GRATIS (Harga Normal: ${formatRupiah(item.originalTotal)})`
+                    : formatRupiah(item.total);
+                    
+                itemLi.innerHTML = `${itemText} - <span class="font-semibold">${priceText}</span>`;
+                itemDetails.appendChild(itemLi);
+            });
+            li.appendChild(itemDetails);
+
+            // Badges
+            const badges = document.createElement('div');
+            badges.className = 'flex flex-wrap gap-2 text-xs font-semibold mt-3';
+            
+            // Status Pengerjaan Badge
+            const statusBadge = document.createElement('span');
+            let statusColor = tx.status === 'PROSES' ? 'bg-yellow-100 text-yellow-800' :
+                                tx.status === 'SELESAI' ? 'bg-indigo-100 text-indigo-800' :
+                                'bg-gray-100 text-gray-800';
+            statusBadge.className = `py-1 px-2 rounded-full ${statusColor}`;
+            statusBadge.textContent = tx.status;
+            badges.appendChild(statusBadge);
+
+            // Status Bayar Badge / Waktu Pelunasan
+            const paidBadge = document.createElement('span');
+            let paidMethodDisplay = tx.paymentMethod;
+            
+            if (isPaid) {
+                // Tampilkan waktu pelunasan jika ada
+                if (tx.paidAt) {
+                    const datePart = tx.paidAt.split(' ')[0].slice(5).replace('-', '/'); // MM/DD
+                    const timePart = tx.paidAt.split(' ')[1].slice(0, 5); // HH:MM
+                    paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
+                    paidBadge.textContent = `LUNAS ${tx.paymentMethod} (${datePart} ${timePart})`; // <-- Ditampilkan Tanggal dan Jam
+                } else {
+                    // Jika total 0 (nota gratis) atau sudah lunas tapi data lama (no paidAt)
+                     paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
+                     paidBadge.textContent = `LUNAS (${paidMethodDisplay})`;
+                }
+            } else {
+                paidBadge.className = 'py-1 px-2 rounded-full bg-red-500 text-white';
+                paidBadge.textContent = 'BELUM BAYAR';
+            }
+            badges.appendChild(paidBadge);
+
+            li.appendChild(badges);
+
+            // Tombol Aksi
+            // Logika diubah: Tombol Pelunasan boleh muncul di History (isReadOnly=false)
+            if (!isReadOnly || (!tx.isPaid && tx.total > 0)) { 
+                const actions = document.createElement('div');
+                actions.className = 'flex flex-wrap gap-2 justify-end pt-3 border-t mt-3';
+                
+                // Aksi Pelunasan (Jika Belum Bayar dan Total > 0)
+                if (!tx.isPaid && tx.total > 0) {
+                    const btnLunasi = document.createElement('button');
+                    btnLunasi.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-green-100 text-green-600 hover:bg-green-200';
+                    btnLunasi.textContent = 'Lunasi Nota';
+                    btnLunasi.addEventListener('click', () => openPayModal(tx));
+                    actions.appendChild(btnLunasi);
+                } else if (tx.isPaid && tx.total > 0 && !isReadOnly) { // Batal Lunas hanya di Hari Aktif
+                    // Jika sudah lunas, tampilkan tombol untuk membatalkan pelunasan
+                    const btnTogglePaid = document.createElement('button');
+                    btnTogglePaid.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-orange-100 text-orange-600 hover:bg-orange-200';
+                    btnTogglePaid.textContent = 'Batal Lunas';
+                    btnTogglePaid.addEventListener('click', () => togglePaidStatus(tx.id));
+                    actions.appendChild(btnTogglePaid);
+                }
+                
+                // Aksi Status Pengerjaan & Hapus hanya bisa di Hari Aktif
+                if (!isReadOnly) {
+                    const createStatusButton = (status, text) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200';
+                        btn.textContent = text;
+                        btn.addEventListener('click', () => updateOrderStatus(tx.id, status));
+                        return btn;
+                    };
+
+                    actions.appendChild(createStatusButton('PROSES', 'PROSES'));
+                    actions.appendChild(createStatusButton('SELESAI', 'SELESAI'));
+                    actions.appendChild(createStatusButton('DIAMBIL', 'DIAMBIL'));
+                    
+                    // Aksi Hapus
+                    const btnDelete = document.createElement('button');
+                    btnDelete.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-red-100 text-red-600 hover:bg-red-200';
+                    btnDelete.textContent = 'Hapus Nota';
+                    btnDelete.addEventListener('click', () => deleteTransaction(tx.id));
+                    actions.appendChild(btnDelete);
+                }
+
+                // Hanya tambahkan container actions jika ada tombol di dalamnya
+                if (actions.children.length > 0) {
+                    li.appendChild(actions);
+                }
+            }
+
+            return li;
+        }
+
+        // --- HANDLER NOTA & ITEM ---
+
+        /**
+         * Menghitung total harga untuk SATU ITEM (layanan).
+         */
+        function calculateItemTotal(service, weight, qty, size, pricePerKgManual) {
+            const data = PRICE_DATA[service];
+            let total = 0;
+            let itemType = data.type;
+            let finalPricePerKg = 0; 
+
+            if (data.type === 'kiloan_standard') {
+                if (weight <= 0 || isNaN(weight)) return { total: 0, pricePerKg: 0, itemType: itemType };
+                finalPricePerKg = pricePerKgManual > 0 ? pricePerKgManual : data.pricePerKg;
+                total = Math.round(weight * finalPricePerKg);
+                
+            } else if (data.type === 'kiloan_tiered') {
+                if (weight <= 0 || isNaN(weight)) return { total: 0, pricePerKg: 0, itemType: itemType };
+                
+                const tier = data.tiers.find(t => weight >= t.min && weight <= t.max);
+                if (tier) {
+                    total = tier.price;
+                    finalPricePerKg = Math.round(tier.price / tier.max); 
+                } else if (weight > data.tiers[data.tiers.length - 1].max) {
+                    const maxTier = data.tiers[data.tiers.length - 1];
+                    const baseRate = maxTier.price / maxTier.max;
+                    total = Math.round(weight * baseRate);
+                    finalPricePerKg = Math.round(baseRate);
+                } else {
+                    return { total: 0, pricePerKg: 0, itemType: itemType };
+                }
+                
+                if (pricePerKgManual > 0) {
+                    total = Math.round(weight * pricePerKgManual);
+                    finalPricePerKg = pricePerKgManual;
+                    itemType = 'kiloan_manual';
+                }
+
+            } else if (data.type === 'satuan') {
+                if (qty <= 0 || isNaN(qty) || !data.rates || !data.rates[size]) {
+                    return { total: 0, pricePerKg: 0, itemType: itemType };
+                }
+                
+                const unitPrice = data.rates[size];
+                total = qty * unitPrice;
+            }
+            
+            // Mengembalikan total sebagai originalTotal
+            return { total: total, originalTotal: total, pricePerKg: finalPricePerKg, itemType: itemType };
+        }
+
+
+        /**
+         * Menambahkan item/layanan baru ke nota aktif.
+         */
+        function addItemToActiveNota() {
+            if (!activeDay) {
+                return customModal("Error", "Belum ada hari aktif.", false, "OK");
+            }
+            
+            const service = document.getElementById('service').value;
+            const serviceData = PRICE_DATA[service];
+
+            // Ambil input spesifik
+            const weight = serviceData.type.includes('kiloan') ? parseFloat(document.getElementById('weight').value) || 0 : 0;
+            const pricePerKgInput = serviceData.type.includes('kiloan') ? parseInt(document.getElementById('pricePerKg').value) || 0 : 0;
+            const qty = serviceData.type === 'satuan' ? parseInt(document.getElementById('qty').value) || 0 : 0;
+            const size = serviceData.type === 'satuan' ? document.getElementById('size').value : '';
+
+            // 1. Validasi Input Item
+            if (serviceData.type.includes('kiloan') && (isNaN(weight) || weight <= 0)) {
+                return customModal("Error", "Untuk layanan kiloan, Berat (kg) harus diisi dengan angka positif.", false, "OK");
+            }
+            if (serviceData.type === 'satuan' && (isNaN(qty) || qty <= 0)) {
+                 return customModal("Error", "Untuk layanan satuan, Jumlah (pc) harus diisi dengan angka positif.", false, "OK");
+            }
+
+            // 2. Hitung Total Item
+            const calculation = calculateItemTotal(service, weight, qty, size, pricePerKgInput);
+            if (calculation.originalTotal <= 0) {
+                 return customModal("Error", "Gagal menghitung total item. Pastikan semua input valid.", false, "OK");
+            }
+
+            // 3. Update Header Nota Aktif (Jika belum ada)
+            if (!activeNota.id) {
+                activeNota.id = Date.now();
+            }
+            activeNota.nota = document.getElementById('nota').value.trim();
+            let customer = document.getElementById('customer').value.trim();
+            activeNota.customer = customer || "Pelanggan";
+            
+            // 4. Buat objek item baru
+            const newItem = {
+                service: service,
+                itemType: calculation.itemType, 
+                total: calculation.total, // Harga saat ini (sama dengan originalTotal)
+                originalTotal: calculation.originalTotal, // Harga normal
+                isGratis: false, // Default: tidak gratis
+                pricePerKg: calculation.pricePerKg, 
+                weight: weight,
+                qty: qty,
+                size: size, 
+            };
+
+            // 5. Tambahkan item dan update total nota
+            activeNota.items.push(newItem);
+            recalculateActiveNotaTotal();
+
+            saveData();
+            
+            // 6. Reset Form Item (tetapi biarkan service/size/pricePerKg default sama)
+            document.getElementById('weight').value = '';
+            document.getElementById('qty').value = '';
+            document.getElementById('calculated-total').textContent = formatRupiah(0);
+            
+            // 7. Render ulang UI
+            renderAppContent();
+            
+            // Scroll ke list item
+            document.getElementById('active-nota-items').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /**
+         * Menghapus item dari nota aktif.
+         */
+        function deleteItemFromActiveNota(e) {
+            const index = e.currentTarget.dataset.index;
+            if (index !== undefined) {
+                activeNota.items.splice(index, 1);
+                recalculateActiveNotaTotal();
+                saveData();
+                renderAppContent(); 
+            }
+        }
+
+        /**
+         * Toggle status GRATIS untuk item tertentu.
+         */
+        function toggleItemGratisStatus(e) {
+            const index = parseInt(e.currentTarget.dataset.index);
+            if (isNaN(index) || index < 0 || index >= activeNota.items.length) return;
+
+            const item = activeNota.items[index];
+            
+            if (item.isGratis) {
+                // Kembalikan ke harga normal
+                item.total = item.originalTotal;
+                item.isGratis = false;
+            } else {
+                // Ubah menjadi gratis, simpan harga asli, set total ke 0
+                item.total = 0;
+                item.isGratis = true;
+            }
+            
+            recalculateActiveNotaTotal();
+            saveData();
+            renderAppContent();
+        }
+
+
+        /**
+         * Menyimpan nota aktif menjadi transaksi permanen.
+         */
+        function saveActiveNota() {
+            if (activeNota.items.length === 0) {
+                return customModal("Error", "Nota tidak memiliki item.", false, "OK");
+            }
+
+            // Ambil data final dari form aksi simpan
+            let isPaid = document.getElementById('isPaid').checked;
+            let paymentMethod = 'CASH'; // Default untuk Belum Lunas
+
+            // Tambahan: Waktu Pelunasan
+            let paidAt = null; 
+
+            // LOGIKA PEMBAYARAN
+            if (isPaid) {
+                 // Cari elemen radio button yang TIDAK disabled dan yang terpilih
+                 const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked:not(:disabled)');
+                 paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : 'CASH'; 
+                 paidAt = getCurrentDateTimeString();
+            }
+            
+            // Jika total nota 0 (berarti semua item GRATIS), maka otomatis lunas
+            if (activeNota.total === 0) {
+                isPaid = true;
+                paymentMethod = 'GRATIS'; // Label untuk nota yang totalnya nol
+                paidAt = getCurrentDateTimeString();
+            }
+
+
+            const finalNota = {
+                id: activeNota.id,
+                date: activeDay,
+                nota: activeNota.nota,
+                customer: activeNota.customer,
+                total: activeNota.total,
+                items: activeNota.items, // Simpan array item
+                paymentMethod: paymentMethod,
+                isPaid: isPaid,
+                paidAt: paidAt, // <-- Ditambahkan
+                status: "PROSES"
+            };
+
+            orders.unshift(finalNota); // Tambahkan di awal
+            
+            resetActiveNota(); // Reset state nota aktif
+            saveData();
+            
+            switchView('kasir'); 
+            document.getElementById('transaction-list-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /**
+         * Menampilkan modal pelunasan untuk nota yang Belum Lunas.
+         */
+        function openPayModal(nota) {
+            const payModal = document.getElementById('pay-modal');
+            
+            document.getElementById('pay-modal-total').textContent = formatRupiah(nota.total);
+            document.getElementById('pay-modal-confirm').dataset.txid = nota.id;
+            document.getElementById('pay-modal-message').innerHTML = `Pilih metode pembayaran untuk melunasi nota **#${nota.nota || nota.customer}** sebesar:`;
+            
+            // Reset pilihan radio ke CASH
+            document.querySelector('input[name="payMethod"][value="CASH"]').checked = true;
+
+            payModal.classList.remove('hidden');
+            payModal.classList.add('flex');
+        }
+
+        /**
+         * Melunasi nota dengan metode yang dipilih.
+         */
+        function finalizePayment() {
+            const payModal = document.getElementById('pay-modal');
+            const notaId = parseInt(document.getElementById('pay-modal-confirm').dataset.txid);
+            const selectedMethod = document.querySelector('input[name="payMethod"]:checked').value;
+            
+            const txIndex = orders.findIndex(tx => tx.id === notaId);
+
+            if (txIndex !== -1) {
+                orders[txIndex].isPaid = true;
+                orders[txIndex].paymentMethod = selectedMethod;
+                orders[txIndex].paidAt = getCurrentDateTimeString(); // <-- Dicatat waktu pelunasan
+                saveData();
+
+                payModal.classList.add('hidden');
+                payModal.classList.remove('flex');
+                
+                // Pesan konfirmasi yang lebih detail
+                const paidTime = orders[txIndex].paidAt.split(' ')[1].slice(0, 5); 
+                customModal("Pelunasan Berhasil", `Nota **#${orders[txIndex].nota || orders[txIndex].customer}** (${formatRupiah(orders[txIndex].total)}) berhasil dilunasi menggunakan **${selectedMethod}** pada pukul **${paidTime}**.`, false, "OK");
+                
+                // Refresh view, tetap di History Detail jika itu view aktif
+                if (currentView === 'kasir') {
+                    switchView('kasir');
+                } else if (currentView === 'history' && currentHistoryDate) {
+                    switchView('history', currentHistoryDate);
+                } else {
+                     switchView('kasir'); // Default kembali ke kasir jika tidak yakin
+                }
+            }
+        }
+
+        /**
+         * Membatalkan nota aktif dan mereset form.
+         */
+        async function cancelActiveNota() {
+            const confirm = await customModal(
+                "Konfirmasi Batal", 
+                `Yakin ingin **MENGHAPUS** semua ${activeNota.items.length} item di nota ini?`, 
+                true, 
+                "Batalkan Nota"
+            );
+
+            if (confirm) {
+                resetActiveNota();
+                saveData();
+                switchView('kasir');
+            }
+        }
+
+        /**
+         * Mengatur tampilan form dan harga per kg berdasarkan jenis layanan yang dipilih.
+         * Juga mengatur opsi dropdown ukuran SATUAN.
+         */
+        function setPriceOnServiceChange() {
+            const service = document.getElementById('service').value;
+            const data = PRICE_DATA[service];
+            
+            const kiloanInputs = document.getElementById('kiloan-inputs');
+            const satuanInputs = document.getElementById('satuan-inputs');
+            const pricePerKgInput = document.getElementById('pricePerKg');
+            const sizeSelect = document.getElementById('size'); // Ambil elemen size
+            
+            // Set default: Reset tampilan & harga per kg
+            pricePerKgInput.value = '';
+            document.getElementById('calculated-total').textContent = formatRupiah(0);
+
+            if (data.type.includes('kiloan')) {
+                kiloanInputs.classList.remove('hidden');
+                satuanInputs.classList.add('hidden');
+
+                if (data.type === 'kiloan_standard') {
+                    pricePerKgInput.value = data.pricePerKg;
+                    pricePerKgInput.previousElementSibling.textContent = 'Harga/kg (Bisa Diubah)';
+                } else {
+                    pricePerKgInput.value = ''; 
+                    pricePerKgInput.previousElementSibling.textContent = 'Harga/kg Override (Opsional)';
+                }
+
+            } else if (data.type === 'satuan') {
+                kiloanInputs.classList.add('hidden');
+                satuanInputs.classList.remove('hidden');
+                
+                // --- FIX BUG: Update Opsi Ukuran Dinamis ---
+                sizeSelect.innerHTML = '';
+                if (data.sizes) {
+                    Object.keys(data.sizes).forEach(key => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = data.sizes[key];
+                        sizeSelect.appendChild(option);
+                    });
+                }
+                // --- Akhir FIX BUG ---
+
+                // Kiloan inputs tidak relevan
+                pricePerKgInput.value = '';
+            }
+            
+            // Update total saat layanan berubah (default ke 0)
+            updateCalculatedTotal();
+        }
+
+        /**
+         * Mengupdate tampilan total ITEM saat input berubah.
+         */
+        function updateCalculatedTotal() {
+            const service = document.getElementById('service').value;
+            const data = PRICE_DATA[service];
+            
+            const weight = data.type.includes('kiloan') ? parseFloat(document.getElementById('weight').value) || 0 : 0;
+            const pricePerKgInput = data.type.includes('kiloan') ? parseInt(document.getElementById('pricePerKg').value) || 0 : 0;
+            const qty = data.type === 'satuan' ? parseInt(document.getElementById('qty').value) || 0 : 0;
+            const size = data.type === 'satuan' ? document.getElementById('size').value : '';
+            
+            const calculation = calculateItemTotal(service, weight, qty, size, pricePerKgInput);
+            document.getElementById('calculated-total').textContent = formatRupiah(calculation.total);
+        }
+
+        // --- HANDLER TRANSAKSI (Nota Final) ---
+
+        /**
+         * Toggle status pembayaran (isPaid) nota. (Hanya untuk Batal Lunas di hari aktif)
+         */
+        function togglePaidStatus(id) {
+            const txIndex = orders.findIndex(tx => tx.id === id);
+            if (txIndex !== -1) {
+                // Abaikan jika total 0 (otomatis lunas)
+                if (orders[txIndex].total === 0) return;
+                
+                // Jika sudah Lunas, ubah jadi Belum Lunas
+                if (orders[txIndex].isPaid) {
+                    orders[txIndex].isPaid = false;
+                    orders[txIndex].paymentMethod = 'CASH'; // Reset ke default CASH
+                    orders[txIndex].paidAt = null; // <-- Hapus waktu pelunasan
+                } 
+                
+                saveData();
+                switchView(currentView, currentHistoryDate); 
+            }
+        }
+
+        /**
+         * Update status pengerjaan nota.
+         */
+        function updateOrderStatus(id, newStatus) {
+            const txIndex = orders.findIndex(tx => tx.id === id);
+            if (txIndex !== -1) {
+                orders[txIndex].status = newStatus;
+                saveData();
+                switchView(currentView, currentHistoryDate); 
+            }
+        }
+
+        /**
+         * Hapus nota.
+         */
+        async function deleteTransaction(id) {
+            const txIndex = orders.findIndex(tx => tx.id === id);
+            if (txIndex === -1) return;
+
+            const tx = orders[txIndex];
+            const confirm = await customModal(
+                "Konfirmasi Hapus Nota", 
+                `Yakin ingin menghapus seluruh Nota **${tx.nota || tx.customer}** (Total ${formatRupiah(tx.total)})?`, 
+                true, 
+                "Hapus"
+            );
+            
+            if (confirm) {
+                orders.splice(txIndex, 1);
+                saveData();
+                switchView(currentView, currentHistoryDate); 
+            }
+        }
+
+        // --- HANDLER HARI ---
+
+        /**
+         * Memulai Hari Baru.
+         */
+        async function startNewDay() {
+            const today = getTodayDateString();
+            
+            if (activeDay) {
+                const activeDayOrders = orders.filter(tx => tx.date === activeDay);
+                const confirmMessage = `Hari aktif sudah ada: <strong>${activeDay}</strong> dengan ${activeDayOrders.length} nota.<br><br>Memulai hari baru akan menutup hari lama. Yakin ganti hari ke <strong>${today}</strong>?`;
+                const isConfirmed = await customModal("Konfirmasi Ganti Hari", confirmMessage, true, "Ganti Hari");
+                
+                if (!isConfirmed) return;
+            }
+            
+            activeDay = today;
+            resetActiveNota();
+            saveData();
+            switchView('kasir');
+        }
+
+        /**
+         * Mengakhiri Hari Aktif.
+         */
+        async function endActiveDay() {
+            if (!activeDay) return;
+
+            if (activeNota.items.length > 0) {
+                 const isConfirmedCancel = await customModal("Peringatan", `Ada nota yang belum disimpan (${activeNota.items.length} item). Anda harus menyimpan atau membatalkan nota ini sebelum mengakhiri hari.`, false, "OK");
+                 return;
+            }
+
+            const activeDayOrders = orders.filter(tx => tx.date === activeDay);
+            const confirmMessage = `Yakin ingin **MENGAKHIRI HARI** pada tanggal <strong>${activeDay}</strong>? <br><br>Total ${activeDayOrders.length} nota akan disimpan ke History Harian.`;
+            
+            const isConfirmed = await customModal("Konfirmasi Akhiri Hari", confirmMessage, true, "Akhiri Hari");
+            
+            if (isConfirmed) {
+                activeDay = null;
+                saveData();
+                switchView('history', null);
+                customModal("Selesai", "Hari aktif telah berhasil diakhiri dan nota sudah tersimpan di History Harian.", false, "OK");
+            }
+        }
+
+        // --- LOGIKA IMPORT / EXPORT DATA ---
+
+        /**
+         * Mengunduh semua data orders dalam format JSON.
+         */
+        function exportDataAsJson() {
+            if (orders.length === 0) {
+                return customModal("Info", "Tidak ada data transaksi yang dapat di-export.", false, "OK");
+            }
+            
+            const dataToExport = JSON.stringify(orders, null, 2);
+            const filename = `laundry_mami_marie_backup_${getTodayDateString()}.json`;
+            
+            const blob = new Blob([dataToExport], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            customModal("Export Berhasil", `Data berhasil di-export sebagai file **${filename}**. Pastikan file ini tersimpan dengan aman!`, false, "OK");
+        }
+
+        /**
+         * Memproses file JSON yang diimpor oleh pengguna.
+         */
+        async function importDataFromJson(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const isConfirmed = await customModal(
+                "Konfirmasi Import",
+                `Yakin ingin mengimpor file **${file.name}**? Ini akan **MENGHAPUS SEMUA DATA TRANSAKSI SAAT INI** dan menggantinya dengan data dari file.`,
+                true,
+                "Lanjutkan Import"
+            );
+
+            if (!isConfirmed) {
+                // Reset input file agar pengguna bisa mencoba lagi jika batal
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedOrders = JSON.parse(e.target.result);
+                    
+                    // Lakukan validasi sederhana
+                    if (Array.isArray(importedOrders) && importedOrders.every(tx => tx.id && tx.date && tx.total !== undefined)) {
+                        orders = importedOrders;
+                        saveData();
+                        
+                        // Clear active day/nota just in case the imported data is old
+                        activeDay = null;
+                        resetActiveNota();
+                        
+                        customModal("Import Berhasil", `Berhasil mengimpor ${orders.length} transaksi. Aplikasi akan di-refresh.`, false, "OK").then(() => {
+                            switchView('history', null);
+                            // Reset input file setelah berhasil
+                            event.target.value = ''; 
+                        });
+                    } else {
+                        customModal("Error Import", "Format file JSON tidak valid atau tidak sesuai dengan struktur data transaksi.", false, "OK");
+                    }
+                } catch (error) {
+                    console.error("Gagal parse JSON:", error);
+                    customModal("Error Import", "Gagal memproses file. Pastikan file berformat JSON yang benar.", false, "OK");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- LOGIKA HISTORY ---
+
+        /**
+         * Merender daftar semua history harian.
+         */
+        function renderHistoryList() {
+            const historyDayList = document.getElementById('history-day-list');
+            const noHistoryMessageContainer = document.getElementById('no-history-message-container');
+
+            historyDayList.innerHTML = '';
+            historyDayList.appendChild(noHistoryMessageContainer);
+
+            const dailyGroups = orders.reduce((acc, tx) => {
+                if (!acc[tx.date]) {
+                    acc[tx.date] = [];
+                }
+                acc[tx.date].push(tx);
+                return acc;
+            }, {});
+
+            const sortedDates = Object.keys(dailyGroups).sort().reverse(); 
+            
+            if (sortedDates.length === 0) {
+                noHistoryMessageContainer.style.display = 'block';
+                return;
+            }
+            noHistoryMessageContainer.style.display = 'none';
+
+            sortedDates.forEach(date => {
+                const dayOrders = dailyGroups[date];
+                const recap = calculateRecap(dayOrders);
+
+                const li = document.createElement('li');
+                li.className = 'p-4 bg-white rounded-xl shadow-md border border-gray-200';
+                li.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xl font-bold text-gray-800">${date}</p>
+                            <p class="text-sm text-gray-600 mt-1">Total Nota: <span class="font-semibold">${recap.totalTx}</span></p>
+                            <p class="text-sm text-gray-600">Total Pemasukan (Lunas): <span class="font-semibold text-green-600">${formatRupiah(recap.totalAllPaid)}</span></p>
+                        </div>
+                        <button data-date="${date}" class="btn-view-detail large-button bg-blue-500 text-white text-sm hover:bg-blue-600 self-center">
+                            Lihat Detail
+                        </button>
+                    </div>
+                    <div class="text-xs mt-2 pt-2 border-t border-gray-100 space-y-0.5">
+                        <p class="flex justify-between"><span class="text-gray-500">CASH:</span> ${formatRupiah(recap.cash)}</p>
+                        <p class="flex justify-between"><span class="text-gray-500">QRIS:</span> ${formatRupiah(recap.qris)}</p>
+                        <p class="flex justify-between"><span class="text-gray-500">TRANSFER:</span> ${formatRupiah(recap.transfer)}</p>
+                        <p class="text-red-500">Belum Bayar: ${recap.unpaid} Nota</p>
+                    </div>
+                `;
+                historyDayList.insertBefore(li, noHistoryMessageContainer);
+            });
+        }
+
+        /**
+         * Merender detail history untuk tanggal tertentu.
+         */
+        function renderHistoryDetail(date) {
+            const detailOrders = orders.filter(tx => tx.date === date);
+            const recap = calculateRecap(detailOrders);
+
+            document.getElementById('detail-history-title').textContent = `Detail Nota: ${date}`;
+            
+            // Update Recap Detail (Recap sudah diubah untuk menghitung nota)
+            document.getElementById('detail-recap-total-tx').textContent = recap.totalTx;
+            document.getElementById('detail-recap-cash').textContent = formatRupiah(recap.cash);
+            document.getElementById('detail-recap-qris').textContent = formatRupiah(recap.qris);
+            document.getElementById('detail-recap-transfer').textContent = formatRupiah(recap.transfer);
+            document.getElementById('detail-recap-total-all').textContent = formatRupiah(recap.totalAllPaid);
+            document.getElementById('detail-recap-unpaid').textContent = `${recap.unpaid} Nota`;
+            document.getElementById('detail-recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
+            document.getElementById('detail-recap-proses').textContent = recap.statusCount.PROSES;
+            document.getElementById('detail-recap-selesai').textContent = recap.statusCount.SELESAI;
+            document.getElementById('detail-recap-diambil').textContent = recap.statusCount.DIAMBIL;
+
+            // Update List Detail (Menggunakan isReadOnly=false agar tombol Pelunasan muncul)
+            const listElement = document.getElementById('history-transaction-list');
+            listElement.innerHTML = '';
+            
+            detailOrders.forEach(tx => {
+                // Menggunakan isReadOnly=false agar tombol Lunasi muncul (dibatasi di createNotaListItem)
+                listElement.appendChild(createNotaListItem(tx, false)); 
+            });
+
+            document.getElementById('btn-delete-history-day').dataset.date = date;
+        }
+
+        /**
+         * Menghapus semua transaksi pada tanggal tertentu dari history.
+         */
+        async function deleteHistoryDay(date) {
+             const isConfirmed = await customModal("Konfirmasi Hapus History", 
+                 `Yakin ingin **MENGHAPUS SEMUA** nota pada tanggal <strong>${date}</strong>? Tindakan ini tidak dapat dibatalkan.`, 
+                 true, 
+                 "Hapus Permanen"
+               );
+
+            if (isConfirmed) {
+                orders = orders.filter(tx => tx.date !== date);
+                saveData();
+                
+                switchView('history', null);
+            }
+        }
+
+
+        // --- INIT & EVENT LISTENERS ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            
+            // Atur tampilan form dan harga default saat pertama kali load
+            setPriceOnServiceChange();
+            
+            // Render UI awal menggunakan fungsi switchView default
+            switchView(currentView);
+            
+            // Panggil fungsi kontrol visibility saat DOMContentLoaded
+            togglePaymentMethodVisibility(); 
+            
+            // Isi form nota aktif jika ada di storage
+            if (activeNota.nota) document.getElementById('nota').value = activeNota.nota;
+            if (activeNota.customer) document.getElementById('customer').value = activeNota.customer;
+
+
+            // Event Listeners Tab
+            document.getElementById('tab-kasir').addEventListener('click', () => {
+                switchView('kasir');
+            });
+
+            document.getElementById('tab-history').addEventListener('click', () => {
+                switchView('history', null); 
+            });
+
+            // Event Listeners Kontrol Hari
+            document.getElementById('btn-start-day').addEventListener('click', startNewDay);
+            document.getElementById('btn-end-day').addEventListener('click', endActiveDay);
+            
+            // Event Listeners Header Nota (Simpan Nota/Pelanggan saat diinput)
+            document.getElementById('nota').addEventListener('input', () => {
+                activeNota.nota = document.getElementById('nota').value.trim();
+                saveData();
+            });
+            document.getElementById('customer').addEventListener('input', () => {
+                let customer = document.getElementById('customer').value.trim();
+                activeNota.customer = customer || "Pelanggan";
+                saveData();
+            });
+            
+            // Event Listener Checkbox Lunas 
+            document.getElementById('isPaid').addEventListener('change', togglePaymentMethodVisibility);
+
+
+            // Event Listeners Form Item
+            document.getElementById('service').addEventListener('change', setPriceOnServiceChange);
+            document.getElementById('weight').addEventListener('input', updateCalculatedTotal);
+            document.getElementById('pricePerKg').addEventListener('input', updateCalculatedTotal);
+            document.getElementById('qty').addEventListener('input', updateCalculatedTotal);
+            document.getElementById('size').addEventListener('change', updateCalculatedTotal);
+
+            document.getElementById('btn-add-item').addEventListener('click', addItemToActiveNota);
+            
+            // Event Listeners Aksi Nota
+            document.getElementById('btn-save-nota').addEventListener('click', saveActiveNota);
+            document.getElementById('btn-cancel-nota').addEventListener('click', cancelActiveNota);
+            
+            // Event Listeners Pelunasan Modal
+            document.getElementById('pay-modal-cancel').addEventListener('click', () => {
+                document.getElementById('pay-modal').classList.add('hidden');
+                document.getElementById('pay-modal').classList.remove('flex');
+            });
+            document.getElementById('pay-modal-confirm').addEventListener('click', finalizePayment);
+
+
+            // Event Listeners History Detail
+            document.getElementById('history-day-list').addEventListener('click', (e) => {
+                if (e.target.closest('.btn-view-detail')) {
+                    const btn = e.target.closest('.btn-view-detail');
+                    const date = btn.dataset.date;
+                    switchView('history', date);
+                }
+            });
+            document.getElementById('btn-back-history').addEventListener('click', () => {
+                switchView('history', null);
+            });
+            document.getElementById('btn-delete-history-day').addEventListener('click', (e) => {
+                const date = e.currentTarget.dataset.date;
+                if (date) deleteHistoryDay(date);
+            });
+
+            // Event Listeners Import/Export Data
+            document.getElementById('btn-export-data').addEventListener('click', exportDataAsJson);
+            document.getElementById('file-import').addEventListener('change', importDataFromJson);
+        });
+    </script>
+
+</body>
+</html>
