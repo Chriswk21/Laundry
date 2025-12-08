@@ -380,6 +380,20 @@
         </div>
     </div>
 
+    <div id="notes-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <h3 class="text-xl font-bold text-gray-800">Edit Catatan Nota</h3>
+            <p class="text-gray-700" id="notes-modal-message">Catatan untuk Nota #<span id="notes-modal-nota-id"></span> (<span id="notes-modal-nota-customer"></span>)</p>
+            
+            <textarea id="notes-modal-textarea" rows="4" class="large-input w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan catatan baru atau edit catatan yang sudah ada."></textarea>
+
+            <div class="flex justify-end gap-3">
+                <button id="notes-modal-cancel" class="py-2 px-4 large-button bg-gray-300 text-gray-800 hover:bg-gray-400 text-base">Batal</button>
+                <button id="notes-modal-save" data-txid="" class="py-2 px-4 large-button bg-blue-600 text-white hover:bg-blue-700 text-base">Simpan Catatan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- KONFIGURASI APLIKASI ---
         const STORAGE_ORDERS_KEY = 'laundry_mami_orders_multi'; 
@@ -420,7 +434,7 @@
                     { min: 20.1, max: 22.0, price: 180000, perKg: 0 },
                     { min: 22.1, max: 25.5, price: 210000, perKg: 0 },
                     { min: 25.6, max: 27.5, price: 225000, perKg: 0 },
-                    { min: 27.6, max: 31.0, price: 255000, perKg: 0 } // Tambahan tier baru
+                    { min: 27.6, max: 31.0, price: 255000, perKg: 0 } 
                 ]
             },
 
@@ -585,7 +599,7 @@
             document.getElementById('weight').value = '';
             document.getElementById('qty').value = '';
             document.getElementById('calculated-total').textContent = formatRupiah(0);
-            document.getElementById('nota-notes').value = ''; // <--- Catatan BARU
+            document.getElementById('nota-notes').value = ''; 
             
             // Re-render form dan list item
             renderActiveNotaItems();
@@ -641,6 +655,47 @@
                 }
             });
         }
+        
+        // **FUNGSI BARU: BUKA MODAL EDIT CATATAN**
+        function openNotesModal(nota) {
+            const notesModal = document.getElementById('notes-modal');
+            const notaIdSpan = document.getElementById('notes-modal-nota-id');
+            const notaCustomerSpan = document.getElementById('notes-modal-nota-customer');
+            const textarea = document.getElementById('notes-modal-textarea');
+            const saveButton = document.getElementById('notes-modal-save');
+
+            notaIdSpan.textContent = nota.nota || 'TANPA NO. NOTA';
+            notaCustomerSpan.textContent = nota.customer;
+            textarea.value = nota.notes || ''; // Isi dengan catatan yang sudah ada
+            saveButton.dataset.txid = nota.id;
+
+            notesModal.classList.remove('hidden');
+            notesModal.classList.add('flex');
+        }
+
+        // **FUNGSI BARU: SIMPAN CATATAN YANG DIEDIT**
+        function saveEditedNotes(e) {
+            const notesModal = document.getElementById('notes-modal');
+            const notaId = parseInt(e.currentTarget.dataset.txid);
+            const newNotes = document.getElementById('notes-modal-textarea').value.trim();
+            
+            const txIndex = orders.findIndex(tx => tx.id === notaId);
+
+            if (txIndex !== -1) {
+                orders[txIndex].notes = newNotes;
+                saveData();
+
+                notesModal.classList.add('hidden');
+                notesModal.classList.remove('flex');
+                
+                customModal("Berhasil", "Catatan nota telah berhasil diperbarui.", false, "OK");
+                // Refresh view
+                switchView(currentView, currentHistoryDate); 
+            } else {
+                customModal("Error", "Nota tidak ditemukan.", false, "OK");
+            }
+        }
+        // **AKHIR FUNGSI BARU**
 
         /**
          * Fungsi helper untuk mengontrol tampilan metode pembayaran (CASH/QRIS/TRANSFER)
@@ -992,6 +1047,14 @@
                 const actions = document.createElement('div');
                 actions.className = 'flex flex-wrap gap-2 justify-end pt-3 border-t mt-3';
                 
+                // **PERUBAHAN: Tombol Edit Catatan**
+                const btnEditNotes = document.createElement('button');
+                btnEditNotes.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200';
+                btnEditNotes.textContent = 'Edit Catatan';
+                btnEditNotes.addEventListener('click', () => openNotesModal(tx));
+                actions.appendChild(btnEditNotes);
+
+
                 // Aksi Pelunasan (Jika Belum Bayar dan Total > 0)
                 if (!tx.isPaid && tx.total > 0) {
                     const btnLunasi = document.createElement('button');
@@ -1058,15 +1121,18 @@
             } else if (data.type === 'kiloan_tiered') {
                 if (weight <= 0 || isNaN(weight)) return { total: 0, pricePerKg: 0, itemType: itemType };
                 
+                let finalTierTotal = 0;
+                let finalTierPerKg = 0;
                 const tier = data.tiers.find(t => weight >= t.min && weight <= t.max);
+                
                 if (tier) {
-                    total = tier.price;
-                    finalPricePerKg = Math.round(tier.price / tier.max); 
+                    finalTierTotal = tier.price;
+                    finalTierPerKg = Math.round(tier.price / tier.max); 
                 } else if (weight > data.tiers[data.tiers.length - 1].max) {
                     const maxTier = data.tiers[data.tiers.length - 1];
                     const baseRate = maxTier.price / maxTier.max;
-                    total = Math.round(weight * baseRate);
-                    finalPricePerKg = Math.round(baseRate);
+                    finalTierTotal = Math.round(weight * baseRate);
+                    finalTierPerKg = Math.round(baseRate);
                 } else {
                     return { total: 0, pricePerKg: 0, itemType: itemType };
                 }
@@ -1075,7 +1141,11 @@
                     total = Math.round(weight * pricePerKgManual);
                     finalPricePerKg = pricePerKgManual;
                     itemType = 'kiloan_manual';
+                } else {
+                    total = finalTierTotal; 
+                    finalPricePerKg = finalTierPerKg; 
                 }
+
 
             } else if (data.type === 'satuan') {
                 if (qty <= 0 || isNaN(qty) || !data.rates || !data.rates[size]) {
@@ -1238,7 +1308,7 @@
                 customer: activeNota.customer,
                 total: activeNota.total,
                 items: activeNota.items, // Simpan array item
-                notes: notaNotes, // <--- TAMBAHAN: Catatan
+                notes: notaNotes, // <--- Catatan awal
                 paymentMethod: paymentMethod,
                 isPaid: isPaid,
                 paidAt: paidAt, // <-- Ditambahkan
@@ -1627,6 +1697,14 @@
                 `;
                 historyDayList.insertBefore(li, noHistoryMessageContainer);
             });
+            
+            // Re-attach listener untuk tombol detail
+            document.querySelectorAll('.btn-view-detail').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const date = e.currentTarget.dataset.date;
+                    switchView('history', date);
+                });
+            });
         }
 
         /**
@@ -1650,12 +1728,12 @@
             document.getElementById('detail-recap-selesai').textContent = recap.statusCount.SELESAI;
             document.getElementById('detail-recap-diambil').textContent = recap.statusCount.DIAMBIL;
 
-            // Update List Detail (Menggunakan isReadOnly=false agar tombol Pelunasan muncul)
+            // Update List Detail (Menggunakan isReadOnly=false agar tombol Lunasi muncul)
             const listElement = document.getElementById('history-transaction-list');
             listElement.innerHTML = '';
             
             detailOrders.forEach(tx => {
-                // Menggunakan isReadOnly=false agar tombol Lunasi muncul (dibatasi di createNotaListItem)
+                // Menggunakan isReadOnly=false agar tombol Lunasi & Edit Notes muncul
                 listElement.appendChild(createNotaListItem(tx, false)); 
             });
 
@@ -1747,6 +1825,13 @@
                 document.getElementById('pay-modal').classList.remove('flex');
             });
             document.getElementById('pay-modal-confirm').addEventListener('click', finalizePayment);
+
+            // **EVENT LISTENERS MODAL EDIT CATATAN (BARU)**
+            document.getElementById('notes-modal-cancel').addEventListener('click', () => {
+                document.getElementById('notes-modal').classList.add('hidden');
+                document.getElementById('notes-modal').classList.remove('flex');
+            });
+            document.getElementById('notes-modal-save').addEventListener('click', saveEditedNotes);
 
 
             // Event Listeners History Detail
