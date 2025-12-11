@@ -9,9 +9,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc; /* Light gray background */
+            background-color: #f7fafc;
         }
-        /* Styling untuk input dan tombol besar agar mudah disentuh */
         .large-input {
             padding: 0.75rem;
             font-size: 1rem;
@@ -24,10 +23,9 @@
             border-radius: 0.75rem;
             transition: all 0.2s;
         }
-        /* Custom style untuk pesan history kosong agar lebih menonjol */
         #no-history-message-container {
-            background-color: #f3f4ff; /* soft purple */
-            border-left: 4px solid #8b5cf6; /* dark purple line */
+            background-color: #f3f4ff;
+            border-left: 4px solid #8b5cf6;
         }
     </style>
 </head>
@@ -190,10 +188,12 @@
                 <div id="recap-container" class="space-y-2 p-4 bg-indigo-50 rounded-xl shadow-lg border border-indigo-200">
                     <h2 class="text-xl font-bold text-indigo-700 border-b pb-2 mb-3">Rekap Hari Ini (<span id="recap-date"></span>)</h2>
                     <p class="flex justify-between text-base font-medium">
-                        <span class="text-gray-600">Jumlah Nota:</span>
+                        <span class="text-gray-600">Jumlah Nota Hari Ini:</span>
                         <span id="recap-total-tx" class="font-bold text-indigo-700">0</span>
                     </p>
+                    
                     <div class="border-t border-indigo-200 pt-2 space-y-1">
+                        <h3 class="font-bold text-sm text-indigo-700 pt-1">Pemasukan Normal (Nota Dibuat Hari Ini)</h3>
                         <p class="flex justify-between text-sm">
                             <span class="text-gray-500 pl-4">Lunas CASH:</span>
                             <span id="recap-cash" class="font-semibold text-green-600">Rp 0</span>
@@ -207,37 +207,36 @@
                             <span id="recap-transfer" class="font-semibold text-green-600">Rp 0</span>
                         </p>
                     </div>
+                    
+                    <div class="border-t border-indigo-200 pt-2 space-y-1">
+                        <h3 class="font-bold text-sm text-purple-700 pt-1">Pemasukan Pelunasan Utang (Nota Lama)</h3>
+                        <p class="flex justify-between text-base font-bold">
+                            <span class="text-gray-800">TOTAL BAYAR UTANG:</span>
+                            <span id="recap-debt-payment-total" class="font-bold text-purple-700">Rp 0</span>
+                        </p>
+                        <ul id="recap-debt-payment-list" class="list-disc ml-6 text-xs text-gray-600 italic">
+                            </ul>
+                    </div>
+                    
                     <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-indigo-300">
-                        <span class="text-indigo-800">TOTAL SEMUA (LUNAS):</span>
+                        <span class="text-indigo-800">TOTAL KAS HARI INI:</span>
                         <span id="recap-total-all" class="text-indigo-800">Rp 0</span>
                     </p>
                     
                     <div class="border-t border-indigo-200 pt-3 space-y-1 text-sm">
                         <p class="flex justify-between">
-                            <span class="text-gray-600">Belum Bayar:</span>
+                            <span class="text-gray-600">Belum Bayar (Nota Hari Ini):</span>
                             <span id="recap-unpaid" class="font-semibold text-red-500">0 Nota</span>
                         </p>
                         <p class="flex justify-between text-base font-bold">
                             <span class="text-gray-800">Total Belum Lunas:</span>
                             <span id="recap-unpaid-amount" class="font-bold text-red-600">Rp 0</span> 
                         </p>
-                        <p class="flex justify-between">
-                            <span class="text-gray-600">Status PROSES:</span>
-                            <span id="recap-proses">0</span>
-                        </p>
-                        <p class="flex justify-between">
-                            <span class="text-gray-600">Status SELESAI (Belum Diambil):</span>
-                            <span id="recap-selesai">0</span>
-                        </p>
-                        <p class="flex justify-between">
-                            <span class="text-gray-600">Status DIAMBIL:</span>
-                            <span id="recap-diambil" class="text-green-600">0</span>
-                        </p>
                     </div>
                 </div>
 
                 <div id="transaction-list-container">
-                    <h2 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota (<span id="list-count">0</span>)</h2>
+                    <h2 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota Hari Ini (<span id="list-count">0</span>)</h2>
                     <ul id="transaction-list" class="space-y-3">
                         </ul>
                 </div>
@@ -258,7 +257,7 @@
                             </label>
                             <input type="file" id="file-import" accept=".json" class="hidden">
                         </div>
-                        <p class="text-xs text-gray-600">Pastikan Anda selalu melakukan **Export Data** secara berkala sebagai cadangan. **Import** akan menimpa semua data transaksi yang ada saat ini.</p>
+                        <p class="text-xs text-gray-600">JANGAN LUPA DOWNLOAD DATA SETIAP MALAM</p>
                     </div>
 
                     <ul id="history-day-list" class="space-y-4">
@@ -280,12 +279,13 @@
                     </div>
                     
                     <div id="detail-recap-container" class="space-y-2 p-4 bg-purple-50 rounded-xl shadow-lg border border-purple-200">
-                        <h3 class="text-xl font-bold text-purple-700 border-b pb-2 mb-3">Rekap Detail History</h3>
+                        <h3 class="text-xl font-bold text-purple-700 border-b pb-2 mb-3">Rekap Detail History: <span id="detail-recap-date"></span></h3>
                         <p class="flex justify-between text-base font-medium">
-                            <span class="text-gray-600">Jumlah Nota:</span>
+                            <span class="text-gray-600">Jumlah Nota Dibuat:</span>
                             <span id="detail-recap-total-tx" class="font-bold text-purple-700">0</span>
                         </p>
                         <div class="border-t border-purple-200 pt-2 space-y-1">
+                            <h3 class="font-bold text-sm text-purple-700 pt-1">Pemasukan Normal (Lunas di Hari Nota Dibuat)</h3>
                             <p class="flex justify-between text-sm">
                                 <span class="text-gray-500 pl-4">Lunas CASH:</span>
                                 <span id="detail-recap-cash" class="font-semibold text-green-600">Rp 0</span>
@@ -299,37 +299,36 @@
                                 <span id="detail-recap-transfer" class="font-semibold text-green-600">Rp 0</span>
                             </p>
                         </div>
+                        
+                        <div class="border-t border-purple-200 pt-2 space-y-1">
+                            <h3 class="font-bold text-sm text-pink-700 pt-1">Pelunasan Utang Lintas Hari (Dibayar di Tanggal Lain)</h3>
+                            <p class="flex justify-between text-base font-bold">
+                                <span class="text-gray-800">TOTAL UTANG DILUNASI:</span>
+                                <span id="detail-recap-debt-payment-total" class="font-bold text-pink-700">Rp 0</span>
+                            </p>
+                            <ul id="detail-recap-debt-payment-list" class="list-disc ml-6 text-xs text-gray-600 italic">
+                                </ul>
+                        </div>
+                        
                         <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-purple-300">
-                            <span class="text-purple-800">TOTAL SEMUA (LUNAS):</span>
+                            <span class="text-purple-800">TOTAL PEMASUKAN HARI INI:</span>
                             <span id="detail-recap-total-all" class="text-purple-800">Rp 0</span>
                         </p>
                         
                         <div class="border-t border-purple-200 pt-3 space-y-1 text-sm">
                             <p class="flex justify-between">
-                                <span class="text-gray-600">Belum Bayar:</span>
+                                <span class="text-gray-600">Belum Bayar (Nota Hari Ini):</span>
                                 <span id="detail-recap-unpaid" class="font-semibold text-red-500">0 Nota</span>
                             </p>
                             <p class="flex justify-between text-base font-bold">
-                                <span class="text-gray-800">Total Belum Lunas:</span>
+                                <span class="text-gray-800">Total Nilai Piutang Aktif:</span>
                                 <span id="detail-recap-unpaid-amount" class="font-bold text-red-600">Rp 0</span> 
-                            </p>
-                            <p class="flex justify-between">
-                                <span class="text-gray-600">Status PROSES:</span>
-                                <span id="detail-recap-proses">0</span>
-                            </p>
-                            <p class="flex justify-between">
-                                <span class="text-gray-600">Status SELESAI (Belum Diambil):</span>
-                                <span id="detail-recap-selesai">0</span>
-                            </p>
-                            <p class="flex justify-between">
-                                <span class="text-gray-600">Status DIAMBIL:</span>
-                                <span id="detail-recap-diambil" class="text-green-600">0</span>
                             </p>
                         </div>
                     </div>
                     
                     <div class="mt-6">
-                        <h3 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota History</h3>
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota Dibuat Hari Ini</h3>
                         <ul id="history-transaction-list" class="space-y-3">
                             </ul>
                     </div>
@@ -395,19 +394,16 @@
     </div>
 
     <script>
-        // --- KONFIGURASI APLIKASI ---
-        const STORAGE_ORDERS_KEY = 'laundry_mami_orders_multi'; 
+        const STORAGE_ORDERS_KEY = 'laundry_mami_orders_multi';
         const STORAGE_ACTIVE_DAY_KEY = 'laundry_mami_active_day_multi';
-        const STORAGE_ACTIVE_NOTA_KEY = 'laundry_mami_active_nota'; 
+        const STORAGE_ACTIVE_NOTA_KEY = 'laundry_mami_active_nota';
 
-        // Definisi Harga Berdasarkan Gambar dari User
         const PRICE_DATA = {
-            // Skema Harga Kiloan (TIERED)
             'Cuci Kering Lipat': {
                 type: 'kiloan_tiered',
                 tiers: [
-                    { min: 0.1, max: 3.5, price: 25000, perKg: 0 }, 
-                    { min: 3.6, max: 5.5, price: 35000, perKg: 0 }, 
+                    { min: 0.1, max: 3.5, price: 25000, perKg: 0 },
+                    { min: 3.6, max: 5.5, price: 35000, perKg: 0 },
                     { min: 5.6, max: 7.0, price: 50000, perKg: 0 },
                     { min: 7.1, max: 9.0, price: 60000, perKg: 0 },
                     { min: 9.1, max: 11.0, price: 70000, perKg: 0 },
@@ -423,8 +419,8 @@
             'Cuci Kering Setrika': {
                 type: 'kiloan_tiered',
                 tiers: [
-                    { min: 0.1, max: 3.5, price: 30000, perKg: 0 }, 
-                    { min: 3.6, max: 5.5, price: 45000, perKg: 0 }, 
+                    { min: 0.1, max: 3.5, price: 30000, perKg: 0 },
+                    { min: 3.6, max: 5.5, price: 45000, perKg: 0 },
                     { min: 5.6, max: 7.0, price: 60000, perKg: 0 },
                     { min: 7.1, max: 9.0, price: 75000, perKg: 0 },
                     { min: 9.1, max: 11.0, price: 90000, perKg: 0 },
@@ -434,15 +430,13 @@
                     { min: 20.1, max: 22.0, price: 180000, perKg: 0 },
                     { min: 22.1, max: 25.5, price: 210000, perKg: 0 },
                     { min: 25.6, max: 27.5, price: 225000, perKg: 0 },
-                    { min: 27.6, max: 31.0, price: 255000, perKg: 0 } 
+                    { min: 27.6, max: 31.0, price: 255000, perKg: 0 }
                 ]
             },
 
-            // Skema Harga Kiloan (STANDAR per kg)
             'Cuci Saja': { type: 'kiloan_standard', pricePerKg: 4000 },
             'Setrika Saja': { type: 'kiloan_standard', pricePerKg: 6000 },
 
-            // Skema Harga Satuan
             'Boneka/Tas': {
                 type: 'satuan',
                 rates: {
@@ -451,7 +445,6 @@
                     'Besar': 40000,
                     'Super Besar': 50000
                 },
-                // Definisi ukuran untuk dynamic dropdown
                 sizes: {
                     'Kecil': 'Kecil (Rp 20.000)',
                     'Sedang': 'Sedang (Rp 30.000)',
@@ -463,7 +456,7 @@
             'Selimut': {
                 type: 'satuan',
                 rates: {
-                    'Kecil': 10000, 
+                    'Kecil': 10000,
                     'Besar': 15000,
                 },
                 sizes: {
@@ -474,7 +467,7 @@
             'Bed Cover Matras': {
                 type: 'satuan',
                 rates: {
-                    'Kecil': 25000, 
+                    'Kecil': 25000,
                     'Besar': 35000,
                 },
                 sizes: {
@@ -484,34 +477,25 @@
             }
         };
 
-        // --- STATE GLOBAL ---
-        let orders = []; // Array of all finalized notes
-        let activeDay = null; // String 'YYYY-MM-DD' or null
-        let activeNota = { // Nota yang sedang diinput/dikerjakan
+        let orders = [];
+        let activeDay = null;
+        let activeNota = {
             id: null,
             nota: '',
             customer: '',
             total: 0,
-            items: [] // Array of {service, weight, qty, size, total, originalTotal, isGratis, pricePerKg, itemType}
-        }; 
-        let currentView = 'kasir'; 
-        let currentHistoryDate = null; 
+            items: []
+        };
+        let currentView = 'kasir';
+        let currentHistoryDate = null;
 
-        // --- UTILITY FUNCTIONS ---
-
-        /**
-         * Mengambil tanggal dan jam saat ini dalam format YYYY-MM-DD HH:MM:SS.
-         */
         function getCurrentDateTimeString() {
             const now = new Date();
-            const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
-            const time = now.toTimeString().slice(0, 8); // HH:MM:SS
+            const date = now.toISOString().slice(0, 10);
+            const time = now.toTimeString().slice(0, 8);
             return `${date} ${time}`;
         }
 
-        /**
-         * Mengambil tanggal hari ini dalam format YYYY-MM-DD.
-         */
         function getTodayDateString() {
             const today = new Date();
             const year = today.getFullYear();
@@ -519,10 +503,12 @@
             const day = String(today.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
+        
+        // Helper untuk mendapatkan tanggal dari DateTimeString (YYYY-MM-DD HH:MM:SS)
+        function getDateFromDateTimeString(dateTimeString) {
+            return dateTimeString ? dateTimeString.split(' ')[0] : null;
+        }
 
-        /**
-         * Memformat angka menjadi format Rupiah.
-         */
         function formatRupiah(amount) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -532,13 +518,27 @@
             }).format(amount);
         }
 
-        /**
-         * Mengambil data dari localStorage dan menginisialisasi state global.
-         */
         function loadData() {
             try {
                 const storedOrders = localStorage.getItem(STORAGE_ORDERS_KEY);
                 orders = storedOrders ? JSON.parse(storedOrders) : [];
+                
+                // Initialize/Sanitize paymentHistory and paidInDay for old transactions if needed
+                orders = orders.map(tx => {
+                    const sanitizedTx = {
+                        ...tx,
+                        paymentHistory: tx.paymentHistory || [],
+                        // Ensure paidInDay exists for paid transactions
+                        paidInDay: tx.paidInDay || (tx.isPaid && tx.paidAt ? getDateFromDateTimeString(tx.paidAt) : null)
+                    };
+                    // Sanitize paymentHistory paidInDay
+                    sanitizedTx.paymentHistory = sanitizedTx.paymentHistory.map(ph => ({
+                        ...ph,
+                        paidInDay: ph.paidInDay || getDateFromDateTimeString(ph.paidAt)
+                    }));
+                    return sanitizedTx;
+                });
+                
                 const storedActiveNota = localStorage.getItem(STORAGE_ACTIVE_NOTA_KEY);
                 if (storedActiveNota) {
                     activeNota = JSON.parse(storedActiveNota);
@@ -551,9 +551,6 @@
             orders.sort((a, b) => b.id - a.id);
         }
 
-        /**
-         * Menyimpan data state global ke localStorage.
-         */
         function saveData() {
             try {
                 localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
@@ -563,7 +560,6 @@
                     localStorage.removeItem(STORAGE_ACTIVE_DAY_KEY);
                 }
                 
-                // Hanya simpan activeNota jika ada item di dalamnya
                 if (activeNota.items.length > 0 || activeNota.nota || activeNota.customer) {
                     localStorage.setItem(STORAGE_ACTIVE_NOTA_KEY, JSON.stringify(activeNota));
                 } else {
@@ -575,16 +571,10 @@
             }
         }
 
-        /**
-         * Hitung ulang total nota aktif dari item-item yang ada.
-         */
         function recalculateActiveNotaTotal() {
             activeNota.total = activeNota.items.reduce((sum, item) => sum + item.total, 0);
         }
 
-        /**
-         * Reset state nota aktif.
-         */
         function resetActiveNota() {
             activeNota = {
                 id: null,
@@ -593,23 +583,18 @@
                 total: 0,
                 items: []
             };
-            // Reset input form
             document.getElementById('nota').value = '';
             document.getElementById('customer').value = '';
             document.getElementById('weight').value = '';
             document.getElementById('qty').value = '';
             document.getElementById('calculated-total').textContent = formatRupiah(0);
-            document.getElementById('nota-notes').value = ''; 
+            document.getElementById('nota-notes').value = '';
             
-            // Re-render form dan list item
             renderActiveNotaItems();
             setPriceOnServiceChange();
         }
 
 
-        /**
-         * Menampilkan modal kustom (alert/confirm).
-         */
         function customModal(title, message, isConfirm = false, confirmText = "Lanjutkan") {
             const modal = document.getElementById('custom-modal');
             document.getElementById('modal-title').textContent = title;
@@ -656,7 +641,6 @@
             });
         }
         
-        // **FUNGSI BARU: BUKA MODAL EDIT CATATAN**
         function openNotesModal(nota) {
             const notesModal = document.getElementById('notes-modal');
             const notaIdSpan = document.getElementById('notes-modal-nota-id');
@@ -666,14 +650,13 @@
 
             notaIdSpan.textContent = nota.nota || 'TANPA NO. NOTA';
             notaCustomerSpan.textContent = nota.customer;
-            textarea.value = nota.notes || ''; // Isi dengan catatan yang sudah ada
+            textarea.value = nota.notes || '';
             saveButton.dataset.txid = nota.id;
 
             notesModal.classList.remove('hidden');
             notesModal.classList.add('flex');
         }
 
-        // **FUNGSI BARU: SIMPAN CATATAN YANG DIEDIT**
         function saveEditedNotes(e) {
             const notesModal = document.getElementById('notes-modal');
             const notaId = parseInt(e.currentTarget.dataset.txid);
@@ -689,49 +672,32 @@
                 notesModal.classList.remove('flex');
                 
                 customModal("Berhasil", "Catatan nota telah berhasil diperbarui.", false, "OK");
-                // Refresh view
                 switchView(currentView, currentHistoryDate); 
             } else {
                 customModal("Error", "Nota tidak ditemukan.", false, "OK");
             }
         }
-        // **AKHIR FUNGSI BARU**
 
-        /**
-         * Fungsi helper untuk mengontrol tampilan metode pembayaran (CASH/QRIS/TRANSFER)
-         * berdasarkan status checkbox "Sudah Bayar / Lunas".
-         */
         function togglePaymentMethodVisibility() {
             const isPaidCheckbox = document.getElementById('isPaid');
-            // Container radio button dan labelnya
             const paymentMethodsContainer = document.querySelector('#save-nota-container .space-y-3.p-3.bg-white.rounded-lg.border div.flex.flex-wrap.gap-4');
             const paymentMethodLabel = document.querySelector('#save-nota-container .space-y-3.p-3.bg-white.rounded-lg.border label.block');
             
             if (isPaidCheckbox.checked) {
-                // Jika Lunas, tampilkan pilihan metode pembayaran
                 if (paymentMethodsContainer) paymentMethodsContainer.classList.remove('hidden');
                 if (paymentMethodLabel) paymentMethodLabel.classList.remove('hidden');
-                // Pastikan input radio button diaktifkan
                 document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => radio.disabled = false);
             } else {
-                // Jika Belum Lunas, sembunyikan pilihan metode pembayaran
                 if (paymentMethodsContainer) paymentMethodsContainer.classList.add('hidden');
                 if (paymentMethodLabel) paymentMethodLabel.classList.add('hidden');
-                // Nonaktifkan radio button agar nilainya tidak ikut tersimpan saat nota belum lunas
                 document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => radio.disabled = true);
             }
         }
 
-        // --- LOGIKA UTAMA RENDER & KONTROL ---
-
-        /**
-         * Mengganti tampilan utama aplikasi.
-         */
         function switchView(newView, detailDate = null) {
             currentView = newView;
             currentHistoryDate = detailDate;
             
-            // 1. Atur tampilan tab navigasi
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('border-blue-600', 'text-blue-600');
                 btn.classList.add('text-gray-600');
@@ -739,13 +705,11 @@
             document.getElementById(`tab-${currentView}`).classList.add('border-blue-600', 'text-blue-600');
             document.getElementById(`tab-${currentView}`).classList.remove('text-gray-600');
             
-            // 2. Tampilkan view yang aktif (kasir atau history)
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const activeViewElement = document.getElementById(`view-${currentView}`);
             if (activeViewElement) activeViewElement.classList.remove('hidden');
 
 
-            // 3. Jika masuk ke History, atur sub-view dan render
             if (newView === 'history') {
                 const historyListView = document.getElementById('history-list-view');
                 const historyDetailView = document.getElementById('history-detail-view');
@@ -761,21 +725,15 @@
                 }
             }
 
-            // 4. Render konten utama (Header dan Kasir Hari Ini)
             renderAppContent(); 
         }
 
-        /**
-         * Menggambar ulang konten non-switching (header, rekap kasir) berdasarkan state terbaru.
-         */
         function renderAppContent() {
-            // 1. UPDATE HEADER
             const statusText = activeDay 
                 ? `Hari aktif: ${activeDay}` 
                 : "Status: Belum mulai hari";
             document.getElementById('header-status').textContent = statusText;
 
-            // 2. KONTROL HARI DAN FORM KASIR HARI INI
             const isDayActive = !!activeDay;
             const notaHeaderContainer = document.getElementById('nota-header-container');
             const itemFormContainer = document.getElementById('transaction-form-container');
@@ -795,10 +753,8 @@
                 recapContainer.style.display = 'block';
                 transactionListContainer.style.display = 'block';
                 
-                // Panggil fungsi kontrol visibility metode pembayaran saat merender
                 togglePaymentMethodVisibility(); 
 
-                // Tampilkan ringkasan nota aktif jika ada item
                 if (activeNota.items.length > 0) {
                     activeNotaContainer.classList.remove('hidden');
                     saveNotaContainer.classList.remove('hidden');
@@ -821,9 +777,6 @@
             }
         }
 
-        /**
-         * Merender daftar item dalam nota yang sedang aktif.
-         */
         function renderActiveNotaItems() {
             const itemListElement = document.getElementById('active-item-list');
             itemListElement.innerHTML = '';
@@ -871,96 +824,208 @@
                 itemListElement.appendChild(li);
             });
             
-            // Re-attach listener untuk tombol hapus item
             document.querySelectorAll('.btn-delete-item').forEach(btn => {
                 btn.addEventListener('click', deleteItemFromActiveNota);
             });
 
-            // Re-attach listener untuk tombol gratis item
             document.querySelectorAll('.btn-toggle-gratis').forEach(btn => {
                 btn.addEventListener('click', toggleItemGratisStatus);
             });
         }
 
-        /**
-         * Merender daftar nota dan rekap untuk Hari Aktif.
-         */
         function renderKasirToday() {
             const todayOrders = orders.filter(tx => tx.date === activeDay);
-            const recap = calculateRecap(todayOrders);
+            const recap = calculateRecap(orders, activeDay); // Kirim semua orders + tanggal aktif
             
-            // Update Recap
             document.getElementById('recap-date').textContent = activeDay;
             document.getElementById('recap-total-tx').textContent = recap.totalTx;
             document.getElementById('recap-cash').textContent = formatRupiah(recap.cash);
             document.getElementById('recap-qris').textContent = formatRupiah(recap.qris);
             document.getElementById('recap-transfer').textContent = formatRupiah(recap.transfer);
-            document.getElementById('recap-total-all').textContent = formatRupiah(recap.totalAllPaid);
-            document.getElementById('recap-unpaid').textContent = `${recap.unpaid} Nota`;
-            document.getElementById('recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
-            document.getElementById('recap-proses').textContent = recap.statusCount.PROSES;
-            document.getElementById('recap-selesai').textContent = recap.statusCount.SELESAI;
-            document.getElementById('recap-diambil').textContent = recap.statusCount.DIAMBIL;
-
-            // Update List
-            const listElement = document.getElementById('transaction-list');
-            listElement.innerHTML = ''; // Kosongkan list
-            document.getElementById('list-count').textContent = todayOrders.length;
+            document.getElementById('recap-total-all').textContent = formatRupiah(recap.totalAllPaid + recap.totalDebtPayment); // Total Kas Hari Ini
             
-            if (todayOrders.length === 0) {
-                listElement.innerHTML = '<p class="text-gray-500 italic p-3 text-center">Belum ada nota hari ini.</p>';
+            document.getElementById('recap-debt-payment-total').textContent = formatRupiah(recap.totalDebtPayment);
+            
+            const debtListEl = document.getElementById('recap-debt-payment-list');
+            debtListEl.innerHTML = '';
+            if (recap.debtPaymentList.length > 0) {
+                recap.debtPaymentList.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Nota Tgl: ${item.notaDate})`;
+                    debtListEl.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Tidak ada pelunasan utang hari ini.';
+                debtListEl.appendChild(li);
             }
 
-            todayOrders.forEach(tx => {
-                listElement.appendChild(createNotaListItem(tx));
-            });
+            document.getElementById('recap-unpaid').textContent = `${recap.unpaid} Nota`;
+            document.getElementById('recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
+            
+            // --- BAGIAN YANG DIHAPUS DARI TAMPILAN KASIR HARI INI ---
+            // document.getElementById('recap-proses').textContent = recap.statusCount.PROSES;
+            // document.getElementById('recap-selesai').textContent = recap.statusCount.SELESAI;
+            // document.getElementById('recap-diambil').textContent = recap.statusCount.DIAMBIL;
+            // document.getElementById('recap-ilang').textContent = recap.statusCount.ILANG;
+
+            const listElement = document.getElementById('transaction-list');
+            listElement.innerHTML = '';
+            document.getElementById('list-count').textContent = todayOrders.length;
+            
+            // Perbaikan bug: Pastikan list diisi
+            if (todayOrders.length === 0) {
+                listElement.innerHTML = '<p class="text-gray-500 italic p-3 text-center">Belum ada nota hari ini.</p>';
+            } else {
+                 todayOrders.forEach(tx => {
+                    listElement.appendChild(createNotaListItem(tx));
+                });
+            }
         }
 
-        /**
-         * Menghitung rekapitulasi dari array Nota.
-         */
-        function calculateRecap(transactionList) {
+        function calculateRecap(allTransactions, targetDate) {
+            
+            const transactionsCreatedToday = allTransactions.filter(tx => tx.date === targetDate);
+            
             const recap = {
-                totalTx: transactionList.length,
+                totalTx: transactionsCreatedToday.length, // Total nota dibuat hari ini
                 cash: 0,
                 qris: 0,
                 transfer: 0,
-                totalAllPaid: 0,
+                totalAllPaid: 0, // Hanya nota yang dibuat dan dibayar di targetDate (Pemasukan Normal)
                 unpaid: 0,
-                totalUnpaidAmount: 0, 
-                statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0 }
+                totalUnpaidAmount: 0,
+                totalDebtPayment: 0,
+                debtPaymentList: [], // { customer, amount, method, notaDate }
+                statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0, ILANG: 0 }
             };
 
-            transactionList.forEach(tx => {
-                if (tx.isPaid || tx.total === 0) { 
-                    if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
-                    if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
-                    if (tx.paymentMethod === 'TRANSFER') recap.transfer += tx.total;
-                    if (tx.paymentMethod === 'GRATIS') recap.totalAllPaid += 0; // Tidak menambah pemasukan
-                } else {
-                    recap.unpaid++;
-                    recap.totalUnpaidAmount += tx.total; 
-                }
+            // 1. Hitung Piutang dan Status Nota yang DIBUAT hari ini
+            transactionsCreatedToday.forEach(tx => {
                 
+                // Hitung Status
                 if (tx.status in recap.statusCount) {
                     recap.statusCount[tx.status]++;
                 }
+                
+                // Hitung Piutang
+                if (!tx.isPaid && tx.total > 0) {
+                    recap.unpaid++;
+                    recap.totalUnpaidAmount += tx.total;
+                }
+
             });
             
+            // 2. Hitung Pemasukan Normal (Nota dibuat dan uang diterima HARI INI)
+            allTransactions.forEach(tx => {
+                // Syarat Pemasukan Normal:
+                // 1. Lunas (isPaid = true)
+                // 2. Tanggal Nota (tx.date) SAMA dengan Tanggal Penerimaan (tx.paidInDay)
+                if (tx.isPaid && tx.paidInDay === targetDate && tx.date === targetDate) {
+                    if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
+                    if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
+                    if (tx.paymentMethod === 'TRANSFER') recap.transfer += tx.total;
+                }
+            });
+
             recap.totalAllPaid = recap.cash + recap.qris + recap.transfer;
+
+
+            // 3. Hitung Pelunasan Utang (Pembayaran yang terjadi HARI INI untuk nota yang dibuat di hari lain)
+            allTransactions.forEach(tx => {
+                // Catat pembayaran yang masuk ke hari ini yang BUKAN merupakan pembayaran normal (yaitu pembayaran utang)
+                if (tx.paymentHistory && tx.paymentHistory.length > 0) {
+                    tx.paymentHistory.forEach(payment => {
+                        // Cek apakah uangnya masuk di targetDate (paidInDay)
+                        if (payment.paidInDay === targetDate) {
+                            recap.totalDebtPayment += payment.amount;
+                            recap.debtPaymentList.push({
+                                customer: tx.customer,
+                                amount: payment.amount,
+                                method: payment.method,
+                                notaDate: tx.date
+                            });
+                        }
+                    });
+                }
+                // Jika nota adalah utang yang dilunasi hari ini TAPI BELUM punya paymentHistory (ini utk skenario pertama kali lunas)
+                // Kita cek apakah paidInDay == targetDate, TAPI tx.date != targetDate
+                else if (tx.isPaid && tx.paidInDay === targetDate && tx.date !== targetDate) {
+                     recap.totalDebtPayment += tx.total;
+                     recap.debtPaymentList.push({
+                         customer: tx.customer,
+                         amount: tx.total,
+                         method: tx.paymentMethod,
+                         notaDate: tx.date
+                     });
+                }
+            });
+            
             return recap;
         }
 
-        /**
-         * Membuat elemen daftar untuk satu Nota.
-         */
-        function createNotaListItem(tx, isReadOnly = false) { // isReadOnly = true jika dipanggil dari History List
+        // FUNGSI KHUSUS UNTUK HISTORY DETAIL SESUAI PERMINTAAN USER
+        function calculateHistoryDetailRecap(allTransactions, targetDate) {
+             const transactionsCreatedOnTargetDate = allTransactions.filter(tx => tx.date === targetDate);
+             
+             const recap = {
+                totalTx: transactionsCreatedOnTargetDate.length,
+                cash: 0,
+                qris: 0,
+                transfer: 0,
+                totalDebtPaid: 0, // Total utang dari nota ini yang dibayar di hari lain
+                debtPaidList: [], // Detail utang dibayar lintas hari
+                totalAllPaid: 0, // Total NILAI LUNAS (Hanya Pemasukan Normal di Hari Nota Dibuat)
+                unpaid: 0, // Sisa piutang aktif dari nota tanggal ini
+                totalUnpaidAmount: 0,
+                statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0, ILANG: 0 }
+             };
+
+             transactionsCreatedOnTargetDate.forEach(tx => {
+                 // Hitung Status (dipertahankan di logika, hanya dihapus dari tampilan)
+                 if (tx.status in recap.statusCount) {
+                     recap.statusCount[tx.status]++;
+                 }
+
+                 // Hitung Pembayaran
+                 if (tx.isPaid) {
+                     // Cek Lunas Normal (Dibayar di hari yang sama)
+                     if (tx.paidInDay === targetDate) {
+                         if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
+                         if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
+                         if (tx.paymentMethod === 'TRANSFER') recap.transfer += tx.total;
+                     } 
+                     
+                     // Cek Lunas Lintas Hari
+                     else if (tx.paidInDay !== targetDate) {
+                         recap.totalDebtPaid += tx.total;
+                         recap.debtPaidList.push({
+                             customer: tx.customer,
+                             amount: tx.total,
+                             method: tx.paymentMethod,
+                             paidInDay: tx.paidInDay
+                         });
+                     }
+                 }
+                 
+                 // Hitung Piutang Aktif (Piutang yang BELUM lunas SAMA SEKALI)
+                 if (!tx.isPaid) {
+                     recap.unpaid++;
+                     recap.totalUnpaidAmount += tx.total;
+                 }
+             });
+
+             // Hanya hitung Pemasukan Normal untuk Total Nilai Lunas (sesuai permintaan user)
+             recap.totalAllPaid = recap.cash + recap.qris + recap.transfer; 
+             return recap;
+        }
+
+        function createNotaListItem(tx, isReadOnly = false) {
             const li = document.createElement('li');
             li.id = `tx-${tx.id}`;
-            const isPaid = tx.isPaid || tx.total === 0; // Nota gratis otomatis lunas
+            const isPaid = tx.isPaid || tx.total === 0;
             li.className = `p-4 border rounded-xl shadow-sm ${isPaid ? 'bg-green-50' : 'bg-red-50'} space-y-2`;
 
-            // Judul Nota & Total
             const header = document.createElement('div');
             header.className = 'flex justify-between items-center border-b pb-2 mb-2';
             const notaDisplay = tx.nota ? `#${tx.nota} ` : '';
@@ -970,7 +1035,6 @@
             `;
             li.appendChild(header);
 
-            // Detail Item
             const itemDetails = document.createElement('ul');
             itemDetails.className = 'list-disc ml-4 space-y-0.5';
             tx.items.forEach(item => {
@@ -993,44 +1057,57 @@
             });
             li.appendChild(itemDetails);
 
-            // Badges
             const badges = document.createElement('div');
             badges.className = 'flex flex-wrap gap-2 text-xs font-semibold mt-3';
             
-            // Status Pengerjaan Badge
             const statusBadge = document.createElement('span');
             let statusColor = tx.status === 'PROSES' ? 'bg-yellow-100 text-yellow-800' :
-                                tx.status === 'SELESAI' ? 'bg-indigo-100 text-indigo-800' :
-                                'bg-gray-100 text-gray-800';
+                                 tx.status === 'SELESAI' ? 'bg-indigo-100 text-indigo-800' :
+                                 tx.status === 'DIAMBIL' ? 'bg-gray-100 text-gray-800' :
+                                 tx.status === 'ILANG' ? 'bg-red-200 text-red-800' : 
+                                 'bg-gray-100 text-gray-800';
             statusBadge.className = `py-1 px-2 rounded-full ${statusColor}`;
             statusBadge.textContent = tx.status;
             badges.appendChild(statusBadge);
 
-            // Status Bayar Badge / Waktu Pelunasan
             const paidBadge = document.createElement('span');
             let paidMethodDisplay = tx.paymentMethod;
             
             if (isPaid) {
-                // Tampilkan waktu pelunasan jika ada
-                if (tx.paidAt) {
-                    const datePart = tx.paidAt.split(' ')[0].slice(5).replace('-', '/'); // MM/DD
-                    const timePart = tx.paidAt.split(' ')[1].slice(0, 5); // HH:MM
-                    paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
-                    paidBadge.textContent = `LUNAS ${tx.paymentMethod} (${datePart} ${timePart})`; // <-- Ditampilkan Tanggal dan Jam
+                if (tx.paidInDay) {
+                    const isDebtPayment = tx.paidInDay !== tx.date;
+                    
+                    if (isDebtPayment && tx.total > 0) {
+                        paidBadge.className = 'py-1 px-2 rounded-full bg-pink-500 text-white';
+                        paidBadge.textContent = `LUNAS UTANG ${tx.paymentMethod} (Tgl Bayar: ${tx.paidInDay})`;
+                    } else if (tx.total === 0) {
+                        paidBadge.className = 'py-1 px-2 rounded-full bg-gray-500 text-white';
+                        paidBadge.textContent = `GRATIS`;
+                    } else {
+                        paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
+                        paidBadge.textContent = `LUNAS ${tx.paymentMethod}`;
+                    }
                 } else {
-                    // Jika total 0 (nota gratis) atau sudah lunas tapi data lama (no paidAt)
+                    // Fallback for old/corrupt data where paidInDay is missing
                     paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
                     paidBadge.textContent = `LUNAS (${paidMethodDisplay})`;
                 }
             } else {
                 paidBadge.className = 'py-1 px-2 rounded-full bg-red-500 text-white';
-                paidBadge.textContent = 'BELUM BAYAR';
+                paidBadge.textContent = 'BELUM BAYAR (PIUTANG)';
             }
             badges.appendChild(paidBadge);
 
+            // Tambahkan badge riwayat pelunasan utang
+            if (tx.paymentHistory && tx.paymentHistory.length > 0) {
+                const historyBadge = document.createElement('span');
+                historyBadge.className = 'py-1 px-2 rounded-full bg-purple-100 text-purple-700';
+                historyBadge.textContent = `Riwayat Pelunasan Utang: ${tx.paymentHistory.length}`;
+                badges.appendChild(historyBadge);
+            }
+
             li.appendChild(badges);
 
-            // Tampilkan Keterangan/Catatan jika ada (BARU)
             if (tx.notes && tx.notes.trim() !== '') {
                 const notesContainer = document.createElement('div');
                 notesContainer.className = 'mt-3 p-2 bg-gray-100 rounded-lg border border-gray-200';
@@ -1041,29 +1118,23 @@
                 li.appendChild(notesContainer);
             }
             
-            // Tombol Aksi
-            // Logika diubah: Tombol Pelunasan boleh muncul di History (isReadOnly=false)
-            if (!isReadOnly || (!tx.isPaid && tx.total > 0)) { 
+            if (!isReadOnly) {
                 const actions = document.createElement('div');
                 actions.className = 'flex flex-wrap gap-2 justify-end pt-3 border-t mt-3';
                 
-                // **PERUBAHAN: Tombol Edit Catatan**
                 const btnEditNotes = document.createElement('button');
                 btnEditNotes.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200';
                 btnEditNotes.textContent = 'Tambah/Edit Catatan';
                 btnEditNotes.addEventListener('click', () => openNotesModal(tx));
                 actions.appendChild(btnEditNotes);
-
-
-                // Aksi Pelunasan (Jika Belum Bayar dan Total > 0)
+                
                 if (!tx.isPaid && tx.total > 0) {
                     const btnLunasi = document.createElement('button');
                     btnLunasi.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-green-100 text-green-600 hover:bg-green-200';
                     btnLunasi.textContent = 'Lunasi Nota';
                     btnLunasi.addEventListener('click', () => openPayModal(tx));
                     actions.appendChild(btnLunasi);
-                } else if (tx.isPaid && tx.total > 0 && !isReadOnly) { // Batal Lunas hanya di Hari Aktif
-                    // Jika sudah lunas, tampilkan tombol untuk membatalkan pelunasan
+                } else if (tx.isPaid && tx.total > 0) {
                     const btnTogglePaid = document.createElement('button');
                     btnTogglePaid.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-orange-100 text-orange-600 hover:bg-orange-200';
                     btnTogglePaid.textContent = 'Batal Lunas';
@@ -1071,29 +1142,25 @@
                     actions.appendChild(btnTogglePaid);
                 }
                 
-                // Aksi Status Pengerjaan & Hapus hanya bisa di Hari Aktif
-                if (!isReadOnly) {
-                    const createStatusButton = (status, text) => {
-                        const btn = document.createElement('button');
-                        btn.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200';
-                        btn.textContent = text;
-                        btn.addEventListener('click', () => updateOrderStatus(tx.id, status));
-                        return btn;
-                    };
+                const createStatusButton = (status, text, bgColor = 'bg-gray-100', hoverBg = 'hover:bg-gray-200', textColor = 'text-gray-600') => {
+                    const btn = document.createElement('button');
+                    btn.className = `text-xs font-semibold py-1 px-2 rounded-lg transition-colors ${bgColor} ${textColor} ${hoverBg}`;
+                    btn.textContent = text;
+                    btn.addEventListener('click', () => updateOrderStatus(tx.id, status));
+                    return btn;
+                };
+                
+                actions.appendChild(createStatusButton('PROSES', 'PROSES', 'bg-yellow-100', 'hover:bg-yellow-200', 'text-yellow-600'));
+                actions.appendChild(createStatusButton('SELESAI', 'SELESAI'));
+                actions.appendChild(createStatusButton('DIAMBIL', 'DIAMBIL', 'bg-green-100', 'hover:bg-green-200', 'text-green-600'));
+              
+                
+                const btnDelete = document.createElement('button');
+                btnDelete.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-red-100 text-red-600 hover:bg-red-200';
+                btnDelete.textContent = 'Hapus Nota';
+                btnDelete.addEventListener('click', () => deleteTransaction(tx.id));
+                actions.appendChild(btnDelete);
 
-                    actions.appendChild(createStatusButton('PROSES', 'PROSES'));
-                    actions.appendChild(createStatusButton('SELESAI', 'SELESAI'));
-                    actions.appendChild(createStatusButton('DIAMBIL', 'DIAMBIL'));
-                    
-                    // Aksi Hapus
-                    const btnDelete = document.createElement('button');
-                    btnDelete.className = 'text-xs font-semibold py-1 px-2 rounded-lg transition-colors bg-red-100 text-red-600 hover:bg-red-200';
-                    btnDelete.textContent = 'Hapus Nota';
-                    btnDelete.addEventListener('click', () => deleteTransaction(tx.id));
-                    actions.appendChild(btnDelete);
-                }
-
-                // Hanya tambahkan container actions jika ada tombol di dalamnya
                 if (actions.children.length > 0) {
                     li.appendChild(actions);
                 }
@@ -1102,16 +1169,11 @@
             return li;
         }
 
-        // --- HANDLER NOTA & ITEM ---
-
-        /**
-         * Menghitung total harga untuk SATU ITEM (layanan).
-         */
         function calculateItemTotal(service, weight, qty, size, pricePerKgManual) {
             const data = PRICE_DATA[service];
             let total = 0;
             let itemType = data.type;
-            let finalPricePerKg = 0; 
+            let finalPricePerKg = 0;
 
             if (data.type === 'kiloan_standard') {
                 if (weight <= 0 || isNaN(weight)) return { total: 0, pricePerKg: 0, itemType: itemType };
@@ -1127,7 +1189,7 @@
                 
                 if (tier) {
                     finalTierTotal = tier.price;
-                    finalTierPerKg = Math.round(tier.price / tier.max); 
+                    finalTierPerKg = Math.round(tier.price / tier.max);
                 } else if (weight > data.tiers[data.tiers.length - 1].max) {
                     const maxTier = data.tiers[data.tiers.length - 1];
                     const baseRate = maxTier.price / maxTier.max;
@@ -1138,14 +1200,15 @@
                 }
                 
                 if (pricePerKgManual > 0) {
+                    // Jika ada override manual, gunakan manual price
                     total = Math.round(weight * pricePerKgManual);
                     finalPricePerKg = pricePerKgManual;
                     itemType = 'kiloan_manual';
                 } else {
-                    total = finalTierTotal; 
-                    finalPricePerKg = finalTierPerKg; 
+                    // Gunakan harga tiered/calculated
+                    total = finalTierTotal;
+                    finalPricePerKg = finalTierPerKg;
                 }
-
 
             } else if (data.type === 'satuan') {
                 if (qty <= 0 || isNaN(qty) || !data.rates || !data.rates[size]) {
@@ -1156,14 +1219,10 @@
                 total = qty * unitPrice;
             }
             
-            // Mengembalikan total sebagai originalTotal
             return { total: total, originalTotal: total, pricePerKg: finalPricePerKg, itemType: itemType };
         }
 
 
-        /**
-         * Menambahkan item/layanan baru ke nota aktif.
-         */
         function addItemToActiveNota() {
             if (!activeDay) {
                 return customModal("Error", "Belum ada hari aktif.", false, "OK");
@@ -1172,13 +1231,11 @@
             const service = document.getElementById('service').value;
             const serviceData = PRICE_DATA[service];
 
-            // Ambil input spesifik
             const weight = serviceData.type.includes('kiloan') ? parseFloat(document.getElementById('weight').value) || 0 : 0;
             const pricePerKgInput = serviceData.type.includes('kiloan') ? parseInt(document.getElementById('pricePerKg').value) || 0 : 0;
             const qty = serviceData.type === 'satuan' ? parseInt(document.getElementById('qty').value) || 0 : 0;
             const size = serviceData.type === 'satuan' ? document.getElementById('size').value : '';
 
-            // 1. Validasi Input Item
             if (serviceData.type.includes('kiloan') && (isNaN(weight) || weight <= 0)) {
                 return customModal("Error", "Untuk layanan kiloan, Berat (kg) harus diisi dengan angka positif.", false, "OK");
             }
@@ -1186,13 +1243,11 @@
                  return customModal("Error", "Untuk layanan satuan, Jumlah (pc) harus diisi dengan angka positif.", false, "OK");
             }
 
-            // 2. Hitung Total Item
             const calculation = calculateItemTotal(service, weight, qty, size, pricePerKgInput);
             if (calculation.originalTotal <= 0) {
                  return customModal("Error", "Gagal menghitung total item. Pastikan semua input valid.", false, "OK");
             }
 
-            // 3. Update Header Nota Aktif (Jika belum ada)
             if (!activeNota.id) {
                 activeNota.id = Date.now();
             }
@@ -1200,53 +1255,42 @@
             let customer = document.getElementById('customer').value.trim();
             activeNota.customer = customer || "Pelanggan";
             
-            // 4. Buat objek item baru
             const newItem = {
                 service: service,
-                itemType: calculation.itemType, 
-                total: calculation.total, // Harga saat ini (sama dengan originalTotal)
-                originalTotal: calculation.originalTotal, // Harga normal
-                isGratis: false, // Default: tidak gratis
-                pricePerKg: calculation.pricePerKg, 
+                itemType: calculation.itemType,
+                total: calculation.total,
+                originalTotal: calculation.originalTotal,
+                isGratis: false,
+                pricePerKg: calculation.pricePerKg,
                 weight: weight,
                 qty: qty,
-                size: size, 
+                size: size,
             };
 
-            // 5. Tambahkan item dan update total nota
             activeNota.items.push(newItem);
             recalculateActiveNotaTotal();
 
             saveData();
             
-            // 6. Reset Form Item (tetapi biarkan service/size/pricePerKg default sama)
             document.getElementById('weight').value = '';
             document.getElementById('qty').value = '';
             document.getElementById('calculated-total').textContent = formatRupiah(0);
             
-            // 7. Render ulang UI
             renderAppContent();
             
-            // Scroll ke list item
             document.getElementById('active-nota-items').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        /**
-         * Menghapus item dari nota aktif.
-         */
         function deleteItemFromActiveNota(e) {
             const index = e.currentTarget.dataset.index;
             if (index !== undefined) {
                 activeNota.items.splice(index, 1);
                 recalculateActiveNotaTotal();
                 saveData();
-                renderAppContent(); 
+                renderAppContent();
             }
         }
 
-        /**
-         * Toggle status GRATIS untuk item tertentu.
-         */
         function toggleItemGratisStatus(e) {
             const index = parseInt(e.currentTarget.dataset.index);
             if (isNaN(index) || index < 0 || index >= activeNota.items.length) return;
@@ -1254,11 +1298,9 @@
             const item = activeNota.items[index];
             
             if (item.isGratis) {
-                // Kembalikan ke harga normal
                 item.total = item.originalTotal;
                 item.isGratis = false;
             } else {
-                // Ubah menjadi gratis, simpan harga asli, set total ke 0
                 item.total = 0;
                 item.isGratis = true;
             }
@@ -1269,35 +1311,33 @@
         }
 
 
-        /**
-         * Menyimpan nota aktif menjadi transaksi permanen.
-         */
         function saveActiveNota() {
+            if (!activeDay) {
+                return customModal("Error", "Anda harus memulai hari aktif untuk mencatat nota.", false, "OK");
+            }
             if (activeNota.items.length === 0) {
                 return customModal("Error", "Nota tidak memiliki item.", false, "OK");
             }
 
-            // Ambil data final dari form aksi simpan
             let isPaid = document.getElementById('isPaid').checked;
-            let paymentMethod = 'CASH'; // Default untuk Belum Lunas
-            let notaNotes = document.getElementById('nota-notes').value.trim(); // <--- TAMBAHAN: Catatan
+            let paymentMethod = 'CASH';
+            let notaNotes = document.getElementById('nota-notes').value.trim();
             
-            // Tambahan: Waktu Pelunasan
-            let paidAt = null; 
+            let paidAt = null;
+            let paidInDay = null; // New field
 
-            // LOGIKA PEMBAYARAN
             if (isPaid) {
-                 // Cari elemen radio button yang TIDAK disabled dan yang terpilih
                  const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked:not(:disabled)');
-                 paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : 'CASH'; 
+                 paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : 'CASH';
                  paidAt = getCurrentDateTimeString();
+                 paidInDay = activeDay; // Uang masuk di hari aktif
             }
             
-            // Jika total nota 0 (berarti semua item GRATIS), maka otomatis lunas
             if (activeNota.total === 0) {
                 isPaid = true;
-                paymentMethod = 'GRATIS'; // Label untuk nota yang totalnya nol
+                paymentMethod = 'GRATIS';
                 paidAt = getCurrentDateTimeString();
+                paidInDay = activeDay;
             }
 
 
@@ -1307,83 +1347,109 @@
                 nota: activeNota.nota,
                 customer: activeNota.customer,
                 total: activeNota.total,
-                items: activeNota.items, // Simpan array item
-                notes: notaNotes, // <--- Catatan awal
-                paymentMethod: paymentMethod,
+                items: activeNota.items,
+                notes: notaNotes,
+                paymentMethod: isPaid ? paymentMethod : null,
                 isPaid: isPaid,
-                paidAt: paidAt, // <-- Ditambahkan
-                status: "PROSES"
+                paidAt: paidAt,
+                paidInDay: paidInDay, // Menyimpan tanggal uang diterima
+                status: "PROSES",
+                paymentHistory: [] // FIELD BARU UNTUK MENCATAT PELUNASAN UTANG LINTAS HARI
             };
 
-            orders.unshift(finalNota); // Tambahkan di awal
+            orders.unshift(finalNota);
             
-            resetActiveNota(); // Reset state nota aktif
-            document.getElementById('nota-notes').value = ''; // Reset notes input (BARU)
+            resetActiveNota();
+            document.getElementById('nota-notes').value = '';
             saveData();
             
-            switchView('kasir'); 
+            switchView('kasir');
             document.getElementById('transaction-list-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        /**
-         * Menampilkan modal pelunasan untuk nota yang Belum Lunas.
-         */
         function openPayModal(nota) {
+            if (!activeDay) {
+                return customModal("Error", "Anda harus memulai hari aktif untuk mencatat pelunasan.", false, "OK");
+            }
             const payModal = document.getElementById('pay-modal');
             
             document.getElementById('pay-modal-total').textContent = formatRupiah(nota.total);
             document.getElementById('pay-modal-confirm').dataset.txid = nota.id;
             document.getElementById('pay-modal-message').innerHTML = `Pilih metode pembayaran untuk melunasi nota **#${nota.nota || nota.customer}** sebesar:`;
             
-            // Reset pilihan radio ke CASH
             document.querySelector('input[name="payMethod"][value="CASH"]').checked = true;
 
             payModal.classList.remove('hidden');
             payModal.classList.add('flex');
         }
 
-        /**
-         * Melunasi nota dengan metode yang dipilih.
-         */
-        function finalizePayment() {
+        async function finalizePayment() {
+            if (!activeDay) {
+                return customModal("Error", "Anda harus memulai hari aktif untuk mencatat pelunasan.", false, "OK");
+            }
+            
             const payModal = document.getElementById('pay-modal');
             const notaId = parseInt(document.getElementById('pay-modal-confirm').dataset.txid);
             const selectedMethod = document.querySelector('input[name="payMethod"]:checked').value;
+            const paidTime = getCurrentDateTimeString();
+            const paidDate = activeDay; // TANGGAL PENTING: Mengambil tanggal dari hari aktif saat ini
             
             const txIndex = orders.findIndex(tx => tx.id === notaId);
 
             if (txIndex !== -1) {
-                orders[txIndex].isPaid = true;
-                orders[txIndex].paymentMethod = selectedMethod;
-                orders[txIndex].paidAt = getCurrentDateTimeString(); // <-- Dicatat waktu pelunasan
+                const tx = orders[txIndex];
+                
+                if (tx.isPaid) {
+                    customModal("Peringatan", "Nota ini sudah lunas.", false, "OK");
+                    payModal.classList.add('hidden');
+                    payModal.classList.remove('flex');
+                    return;
+                }
+
+                // 1. Cek apakah ini pelunasan di luar hari nota dibuat
+                const isDebtPayment = tx.date !== paidDate;
+                
+                // 2. Jika pelunasan di hari yang berbeda, catat ke paymentHistory (utang/piutang)
+                if (isDebtPayment) {
+                    // Hanya catat di paymentHistory jika pembayaran lintas hari
+                    tx.paymentHistory.push({
+                        paidAt: paidTime,
+                        method: selectedMethod,
+                        amount: tx.total,
+                        paidInDay: paidDate // Tanggal di mana uang diterima (Hari Aktif saat ini)
+                    });
+                }
+                
+                // 3. Update status lunas di nota
+                tx.isPaid = true;
+                tx.paymentMethod = selectedMethod;
+                tx.paidAt = paidTime;
+                tx.paidInDay = paidDate; // Tulis tanggal penerimaan uang terakhir (untuk rekap)
+                
+                
                 saveData();
 
                 payModal.classList.add('hidden');
                 payModal.classList.remove('flex');
                 
-                // Pesan konfirmasi yang lebih detail
-                const paidTime = orders[txIndex].paidAt.split(' ')[1].slice(0, 5); 
-                customModal("Pelunasan Berhasil", `Nota **#${orders[txIndex].nota || orders[txIndex].customer}** (${formatRupiah(orders[txIndex].total)}) berhasil dilunasi menggunakan **${selectedMethod}** pada pukul **${paidTime}**.`, false, "OK");
+                const timePart = tx.paidAt.split(' ')[1].slice(0, 5);
+                customModal("Pelunasan Berhasil", `Nota **#${tx.nota || tx.customer}** (${formatRupiah(tx.total)}) berhasil dilunasi menggunakan **${selectedMethod}** pada pukul **${timePart}**. ${isDebtPayment ? "<br><br>Pembayaran ini dicatat sebagai **Pelunasan Utang** di rekap harian hari ini." : ""}`, false, "OK");
                 
-                // Refresh view, tetap di History Detail jika itu view aktif
                 if (currentView === 'kasir') {
                     switchView('kasir');
                 } else if (currentView === 'history' && currentHistoryDate) {
                     switchView('history', currentHistoryDate);
                 } else {
-                     switchView('kasir'); // Default kembali ke kasir jika tidak yakin
+                    switchView('kasir');
                 }
             }
         }
 
-        /**
-         * Membatalkan nota aktif dan mereset form.
-         */
         async function cancelActiveNota() {
             const confirm = await customModal(
-                "Konfirmasi Batal", 
-                `Yakin ingin **MENGHAPUS** semua ${activeNota.items.length} item di nota ini?`, 
-                true, 
+                "Konfirmasi Batal",
+                `Yakin ingin **MENGHAPUS** semua ${activeNota.items.length} item di nota ini?`,
+                true,
                 "Batalkan Nota"
             );
 
@@ -1394,10 +1460,6 @@
             }
         }
 
-        /**
-         * Mengatur tampilan form dan harga per kg berdasarkan jenis layanan yang dipilih.
-         * Juga mengatur opsi dropdown ukuran SATUAN.
-         */
         function setPriceOnServiceChange() {
             const service = document.getElementById('service').value;
             const data = PRICE_DATA[service];
@@ -1405,9 +1467,8 @@
             const kiloanInputs = document.getElementById('kiloan-inputs');
             const satuanInputs = document.getElementById('satuan-inputs');
             const pricePerKgInput = document.getElementById('pricePerKg');
-            const sizeSelect = document.getElementById('size'); // Ambil elemen size
+            const sizeSelect = document.getElementById('size');
             
-            // Set default: Reset tampilan & harga per kg
             pricePerKgInput.value = '';
             document.getElementById('calculated-total').textContent = formatRupiah(0);
 
@@ -1419,7 +1480,7 @@
                     pricePerKgInput.value = data.pricePerKg;
                     pricePerKgInput.previousElementSibling.textContent = 'Harga/kg (Bisa Diubah)';
                 } else {
-                    pricePerKgInput.value = ''; 
+                    pricePerKgInput.value = '';
                     pricePerKgInput.previousElementSibling.textContent = 'Harga/kg Override (Opsional)';
                 }
 
@@ -1427,7 +1488,6 @@
                 kiloanInputs.classList.add('hidden');
                 satuanInputs.classList.remove('hidden');
                 
-                // --- FIX BUG: Update Opsi Ukuran Dinamis ---
                 sizeSelect.innerHTML = '';
                 if (data.sizes) {
                     Object.keys(data.sizes).forEach(key => {
@@ -1437,19 +1497,13 @@
                         sizeSelect.appendChild(option);
                     });
                 }
-                // --- Akhir FIX BUG ---
-
-                // Kiloan inputs tidak relevan
+                
                 pricePerKgInput.value = '';
             }
             
-            // Update total saat layanan berubah (default ke 0)
             updateCalculatedTotal();
         }
 
-        /**
-         * Mengupdate tampilan total ITEM saat input berubah.
-         */
         function updateCalculatedTotal() {
             const service = document.getElementById('service').value;
             const data = PRICE_DATA[service];
@@ -1463,68 +1517,55 @@
             document.getElementById('calculated-total').textContent = formatRupiah(calculation.total);
         }
 
-        // --- HANDLER TRANSAKSI (Nota Final) ---
-
-        /**
-         * Toggle status pembayaran (isPaid) nota. (Hanya untuk Batal Lunas di hari aktif)
-         */
-        function togglePaidStatus(id) {
+        async function togglePaidStatus(id) {
             const txIndex = orders.findIndex(tx => tx.id === id);
             if (txIndex !== -1) {
-                // Abaikan jika total 0 (otomatis lunas)
-                if (orders[txIndex].total === 0) return;
+                const tx = orders[txIndex];
+                if (tx.total === 0) return;
                 
-                // Jika sudah Lunas, ubah jadi Belum Lunas
-                if (orders[txIndex].isPaid) {
-                    orders[txIndex].isPaid = false;
-                    orders[txIndex].paymentMethod = 'CASH'; // Reset ke default CASH
-                    orders[txIndex].paidAt = null; // <-- Hapus waktu pelunasan
-                } 
+                const isConfirmed = await customModal("Batal Lunas", `Yakin ingin membatalkan status lunas untuk nota **#${tx.nota || tx.customer}**? Ini akan mengubah status nota menjadi **BELUM BAYAR (PIUTANG)**.`, true, "Batal Lunas");
                 
-                saveData();
-                switchView(currentView, currentHistoryDate); 
+                if (isConfirmed) {
+                    tx.isPaid = false;
+                    tx.paymentMethod = null;
+                    tx.paidAt = null;
+                    tx.paidInDay = null; // Hapus tanggal penerimaan
+                    tx.paymentHistory = []; // Reset payment history saat batal lunas
+                    
+                    saveData();
+                    switchView(currentView, currentHistoryDate);
+                }
             }
         }
 
-        /**
-         * Update status pengerjaan nota.
-         */
         function updateOrderStatus(id, newStatus) {
             const txIndex = orders.findIndex(tx => tx.id === id);
             if (txIndex !== -1) {
                 orders[txIndex].status = newStatus;
                 saveData();
-                switchView(currentView, currentHistoryDate); 
+                switchView(currentView, currentHistoryDate);
             }
         }
 
-        /**
-         * Hapus nota.
-         */
         async function deleteTransaction(id) {
             const txIndex = orders.findIndex(tx => tx.id === id);
             if (txIndex === -1) return;
 
             const tx = orders[txIndex];
             const confirm = await customModal(
-                "Konfirmasi Hapus Nota", 
-                `Yakin ingin menghapus seluruh Nota **${tx.nota || tx.customer}** (Total ${formatRupiah(tx.total)})?`, 
-                true, 
+                "Konfirmasi Hapus Nota",
+                `Yakin ingin menghapus seluruh Nota **${tx.nota || tx.customer}** (Total ${formatRupiah(tx.total)})?`,
+                true,
                 "Hapus"
             );
             
             if (confirm) {
                 orders.splice(txIndex, 1);
                 saveData();
-                switchView(currentView, currentHistoryDate); 
+                switchView(currentView, currentHistoryDate);
             }
         }
 
-        // --- HANDLER HARI ---
-
-        /**
-         * Memulai Hari Baru.
-         */
         async function startNewDay() {
             const today = getTodayDateString();
             
@@ -1542,9 +1583,6 @@
             switchView('kasir');
         }
 
-        /**
-         * Mengakhiri Hari Aktif.
-         */
         async function endActiveDay() {
             if (!activeDay) return;
 
@@ -1566,11 +1604,6 @@
             }
         }
 
-        // --- LOGIKA IMPORT / EXPORT DATA ---
-
-        /**
-         * Mengunduh semua data orders dalam format JSON.
-         */
         function exportDataAsJson() {
             if (orders.length === 0) {
                 return customModal("Info", "Tidak ada data transaksi yang dapat di-export.", false, "OK");
@@ -1593,9 +1626,6 @@
             customModal("Export Berhasil", `Data berhasil di-export sebagai file **${filename}**. Pastikan file ini tersimpan dengan aman!`, false, "OK");
         }
 
-        /**
-         * Memproses file JSON yang diimpor oleh pengguna.
-         */
         async function importDataFromJson(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1608,7 +1638,6 @@
             );
 
             if (!isConfirmed) {
-                // Reset input file agar pengguna bisa mencoba lagi jika batal
                 event.target.value = '';
                 return;
             }
@@ -1616,21 +1645,33 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedOrders = JSON.parse(e.target.result);
+                    let importedOrders = JSON.parse(e.target.result);
                     
-                    // Lakukan validasi sederhana
                     if (Array.isArray(importedOrders) && importedOrders.every(tx => tx.id && tx.date && tx.total !== undefined)) {
+                        
+                        // Sanitize imported data
+                        importedOrders = importedOrders.map(tx => {
+                            const sanitizedTx = {
+                                ...tx,
+                                paymentHistory: tx.paymentHistory || [],
+                                paidInDay: tx.paidInDay || (tx.isPaid && tx.paidAt ? getDateFromDateTimeString(tx.paidAt) : null)
+                            };
+                            sanitizedTx.paymentHistory = sanitizedTx.paymentHistory.map(ph => ({
+                                ...ph,
+                                paidInDay: ph.paidInDay || getDateFromDateTimeString(ph.paidAt)
+                            }));
+                            return sanitizedTx;
+                        });
+                        
                         orders = importedOrders;
                         saveData();
                         
-                        // Clear active day/nota just in case the imported data is old
                         activeDay = null;
                         resetActiveNota();
                         
                         customModal("Import Berhasil", `Berhasil mengimpor ${orders.length} transaksi. Aplikasi akan di-refresh.`, false, "OK").then(() => {
                             switchView('history', null);
-                            // Reset input file setelah berhasil
-                            event.target.value = ''; 
+                            event.target.value = '';
                         });
                     } else {
                         customModal("Error Import", "Format file JSON tidak valid atau tidak sesuai dengan struktur data transaksi.", false, "OK");
@@ -1643,11 +1684,6 @@
             reader.readAsText(file);
         }
 
-        // --- LOGIKA HISTORY ---
-
-        /**
-         * Merender daftar semua history harian.
-         */
         function renderHistoryList() {
             const historyDayList = document.getElementById('history-day-list');
             const noHistoryMessageContainer = document.getElementById('no-history-message-container');
@@ -1655,15 +1691,21 @@
             historyDayList.innerHTML = '';
             historyDayList.appendChild(noHistoryMessageContainer);
 
-            const dailyGroups = orders.reduce((acc, tx) => {
-                if (!acc[tx.date]) {
-                    acc[tx.date] = [];
+            // Group transactions by ALL dates involved (creation date AND payment dates)
+            const allInvolvedDates = new Set();
+            orders.forEach(tx => {
+                allInvolvedDates.add(tx.date); // Tanggal pembuatan
+                if (tx.paidInDay) {
+                     allInvolvedDates.add(tx.paidInDay); // Tanggal pelunasan jika lunas saat dibuat/diambil
                 }
-                acc[tx.date].push(tx);
-                return acc;
-            }, {});
+                if (tx.paymentHistory && tx.paymentHistory.length > 0) {
+                    tx.paymentHistory.forEach(payment => {
+                        allInvolvedDates.add(payment.paidInDay); // Tanggal pembayaran utang
+                    });
+                }
+            });
 
-            const sortedDates = Object.keys(dailyGroups).sort().reverse(); 
+            const sortedDates = Array.from(allInvolvedDates).sort().reverse(); 
             
             if (sortedDates.length === 0) {
                 noHistoryMessageContainer.style.display = 'block';
@@ -1672,8 +1714,11 @@
             noHistoryMessageContainer.style.display = 'none';
 
             sortedDates.forEach(date => {
-                const dayOrders = dailyGroups[date];
-                const recap = calculateRecap(dayOrders);
+                const recap = calculateRecap(orders, date); // Hitung rekap untuk tanggal ini (pemasukan normal dan utang)
+                
+                const dayOrdersCreated = orders.filter(tx => tx.date === date).length;
+
+                const totalAllPaid = recap.totalAllPaid + recap.totalDebtPayment;
 
                 const li = document.createElement('li');
                 li.className = 'p-4 bg-white rounded-xl shadow-md border border-gray-200';
@@ -1681,24 +1726,22 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-xl font-bold text-gray-800">${date}</p>
-                            <p class="text-sm text-gray-600 mt-1">Total Nota: <span class="font-semibold">${recap.totalTx}</span></p>
-                            <p class="text-sm text-gray-600">Total Pemasukan (Lunas): <span class="font-semibold text-green-600">${formatRupiah(recap.totalAllPaid)}</span></p>
+                            <p class="text-sm text-gray-600 mt-1">Nota Dibuat: <span class="font-semibold">${dayOrdersCreated}</span></p>
+                            <p class="text-sm text-gray-600">Pemasukan Hari Ini(Tanpa UTANG): <span class="font-semibold text-green-600">${formatRupiah(recap.totalAllPaid)}</span></p>
+                            <p class="text-sm text-gray-600">Pelunasan Utang Diterima: <span class="font-semibold text-pink-600">${formatRupiah(recap.totalDebtPayment)}</span></p>
+                            <p class="text-base font-bold">Total Uang (UTANG + HARI INI): <span class="text-indigo-700">${formatRupiah(totalAllPaid)}</span></p>
                         </div>
                         <button data-date="${date}" class="btn-view-detail large-button bg-blue-500 text-white text-sm hover:bg-blue-600 self-center">
                             Lihat Detail
                         </button>
                     </div>
                     <div class="text-xs mt-2 pt-2 border-t border-gray-100 space-y-0.5">
-                        <p class="flex justify-between"><span class="text-gray-500">CASH:</span> ${formatRupiah(recap.cash)}</p>
-                        <p class="flex justify-between"><span class="text-gray-500">QRIS:</span> ${formatRupiah(recap.qris)}</p>
-                        <p class="flex justify-between"><span class="text-gray-500">TRANSFER:</span> ${formatRupiah(recap.transfer)}</p>
-                        <p class="text-red-500">Belum Bayar: ${recap.unpaid} Nota</p>
+                        <p class="text-red-500">Utang Aktif (Nota Dibuat Hari Ini): ${recap.unpaid} Nota</p>
                     </div>
                 `;
                 historyDayList.insertBefore(li, noHistoryMessageContainer);
             });
             
-            // Re-attach listener untuk tombol detail
             document.querySelectorAll('.btn-view-detail').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const date = e.currentTarget.dataset.date;
@@ -1707,50 +1750,61 @@
             });
         }
 
-        /**
-         * Merender detail history untuk tanggal tertentu.
-         */
         function renderHistoryDetail(date) {
-            const detailOrders = orders.filter(tx => tx.date === date);
-            const recap = calculateRecap(detailOrders);
+            // Menggunakan fungsi khusus yang menampilkan data Lunas Lintas Hari pada TANGGAL NOTA DIBUAT
+            const recap = calculateHistoryDetailRecap(orders, date); 
 
+            document.getElementById('detail-recap-date').textContent = date;
             document.getElementById('detail-history-title').textContent = `Detail Nota: ${date}`;
             
-            // Update Recap Detail (Recap sudah diubah untuk menghitung nota)
             document.getElementById('detail-recap-total-tx').textContent = recap.totalTx;
             document.getElementById('detail-recap-cash').textContent = formatRupiah(recap.cash);
             document.getElementById('detail-recap-qris').textContent = formatRupiah(recap.qris);
             document.getElementById('detail-recap-transfer').textContent = formatRupiah(recap.transfer);
+            
+            // Total Nilai LUNAS (Hanya Pemasukan Normal di Hari Nota Dibuat)
             document.getElementById('detail-recap-total-all').textContent = formatRupiah(recap.totalAllPaid);
+
+            // Detail Pelunasan Utang Lintas Hari
+            document.getElementById('detail-recap-debt-payment-total').textContent = formatRupiah(recap.totalDebtPaid);
+            
+            const debtListEl = document.getElementById('detail-recap-debt-payment-list');
+            debtListEl.innerHTML = '';
+            if (recap.debtPaidList.length > 0) {
+                recap.debtPaidList.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Dibayar Tgl: ${item.paidInDay})`;
+                    debtListEl.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Tidak ada pelunasan utang lintas hari untuk nota tanggal ini.';
+                debtListEl.appendChild(li);
+            }
+
             document.getElementById('detail-recap-unpaid').textContent = `${recap.unpaid} Nota`;
             document.getElementById('detail-recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
-            document.getElementById('detail-recap-proses').textContent = recap.statusCount.PROSES;
-            document.getElementById('detail-recap-selesai').textContent = recap.statusCount.SELESAI;
-            document.getElementById('detail-recap-diambil').textContent = recap.statusCount.DIAMBIL;
 
-            // Update List Detail (Menggunakan isReadOnly=false agar tombol Lunasi muncul)
             const listElement = document.getElementById('history-transaction-list');
             listElement.innerHTML = '';
             
-            detailOrders.forEach(tx => {
-                // Menggunakan isReadOnly=false agar tombol Lunasi & Edit Notes muncul
-                listElement.appendChild(createNotaListItem(tx, false)); 
+            // Hanya tampilkan nota yang dibuat pada tanggal ini
+            orders.filter(tx => tx.date === date).forEach(tx => {
+                listElement.appendChild(createNotaListItem(tx, false));
             });
 
             document.getElementById('btn-delete-history-day').dataset.date = date;
         }
 
-        /**
-         * Menghapus semua transaksi pada tanggal tertentu dari history.
-         */
         async function deleteHistoryDay(date) {
              const isConfirmed = await customModal("Konfirmasi Hapus History", 
-                 `Yakin ingin **MENGHAPUS SEMUA** nota pada tanggal <strong>${date}</strong>? Tindakan ini tidak dapat dibatalkan.`, 
+                 `Yakin ingin **MENGHAPUS SEMUA** nota yang **DIBUAT** pada tanggal <strong>${date}</strong>? Tindakan ini tidak dapat dibatalkan. Catatan: Nota dari hari lain yang dilunasi hari ini tidak akan terhapus.`, 
                  true, 
                  "Hapus Permanen"
                );
 
             if (isConfirmed) {
+                // Hanya hapus transaksi yang tanggal buatnya sama dengan tanggal history
                 orders = orders.filter(tx => tx.date !== date);
                 saveData();
                 
@@ -1759,39 +1813,35 @@
         }
 
 
-        // --- INIT & EVENT LISTENERS ---
-
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             
-            // Atur tampilan form dan harga default saat pertama kali load
             setPriceOnServiceChange();
             
-            // Render UI awal menggunakan fungsi switchView default
-            switchView(currentView);
+            // Pengecekan inisial view: jika ada activeDay, default ke kasir. Jika tidak, default ke history list
+            if (activeDay) {
+                 switchView('kasir');
+            } else {
+                 switchView('history', null);
+            }
             
-            // Panggil fungsi kontrol visibility saat DOMContentLoaded
-            togglePaymentMethodVisibility(); 
+            togglePaymentMethodVisibility();
             
-            // Isi form nota aktif jika ada di storage
             if (activeNota.nota) document.getElementById('nota').value = activeNota.nota;
             if (activeNota.customer) document.getElementById('customer').value = activeNota.customer;
 
 
-            // Event Listeners Tab
             document.getElementById('tab-kasir').addEventListener('click', () => {
                 switchView('kasir');
             });
 
             document.getElementById('tab-history').addEventListener('click', () => {
-                switchView('history', null); 
+                switchView('history', null);
             });
 
-            // Event Listeners Kontrol Hari
             document.getElementById('btn-start-day').addEventListener('click', startNewDay);
             document.getElementById('btn-end-day').addEventListener('click', endActiveDay);
             
-            // Event Listeners Header Nota (Simpan Nota/Pelanggan saat diinput)
             document.getElementById('nota').addEventListener('input', () => {
                 activeNota.nota = document.getElementById('nota').value.trim();
                 saveData();
@@ -1802,11 +1852,9 @@
                 saveData();
             });
             
-            // Event Listener Checkbox Lunas 
             document.getElementById('isPaid').addEventListener('change', togglePaymentMethodVisibility);
 
 
-            // Event Listeners Form Item
             document.getElementById('service').addEventListener('change', setPriceOnServiceChange);
             document.getElementById('weight').addEventListener('input', updateCalculatedTotal);
             document.getElementById('pricePerKg').addEventListener('input', updateCalculatedTotal);
@@ -1815,26 +1863,21 @@
 
             document.getElementById('btn-add-item').addEventListener('click', addItemToActiveNota);
             
-            // Event Listeners Aksi Nota
             document.getElementById('btn-save-nota').addEventListener('click', saveActiveNota);
             document.getElementById('btn-cancel-nota').addEventListener('click', cancelActiveNota);
             
-            // Event Listeners Pelunasan Modal
             document.getElementById('pay-modal-cancel').addEventListener('click', () => {
                 document.getElementById('pay-modal').classList.add('hidden');
                 document.getElementById('pay-modal').classList.remove('flex');
             });
             document.getElementById('pay-modal-confirm').addEventListener('click', finalizePayment);
 
-            // **EVENT LISTENERS MODAL EDIT CATATAN (BARU)**
             document.getElementById('notes-modal-cancel').addEventListener('click', () => {
                 document.getElementById('notes-modal').classList.add('hidden');
                 document.getElementById('notes-modal').classList.remove('flex');
             });
             document.getElementById('notes-modal-save').addEventListener('click', saveEditedNotes);
 
-
-            // Event Listeners History Detail
             document.getElementById('history-day-list').addEventListener('click', (e) => {
                 if (e.target.closest('.btn-view-detail')) {
                     const btn = e.target.closest('.btn-view-detail');
@@ -1850,7 +1893,6 @@
                 if (date) deleteHistoryDay(date);
             });
 
-            // Event Listeners Import/Export Data
             document.getElementById('btn-export-data').addEventListener('click', exportDataAsJson);
             document.getElementById('file-import').addEventListener('change', importDataFromJson);
         });
