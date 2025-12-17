@@ -80,7 +80,6 @@
                     </div>
                 </div>
 
-
                 <div id="active-nota-items" class="space-y-3 p-4 border rounded-xl shadow-lg bg-white hidden">
                     <h2 class="text-xl font-bold text-gray-700">Item di Nota (<span id="active-item-count">0</span>)</h2>
                     <ul id="active-item-list" class="space-y-2 border-b pb-3">
@@ -92,7 +91,6 @@
                         <span id="active-nota-total" class="text-red-600">Rp 0</span>
                     </p>
                 </div>
-
 
                 <div id="transaction-form-container" class="space-y-4 border p-4 rounded-xl shadow-lg bg-blue-50">
                     <h2 class="text-xl font-bold text-blue-700">Input Item/Layanan Baru</h2>
@@ -184,7 +182,6 @@
                     </button>
                 </div>
 
-
                 <div id="recap-container" class="space-y-2 p-4 bg-indigo-50 rounded-xl shadow-lg border border-indigo-200">
                     <h2 class="text-xl font-bold text-indigo-700 border-b pb-2 mb-3">Rekap Hari Ini (<span id="recap-date"></span>)</h2>
                     <p class="flex justify-between text-base font-medium">
@@ -215,7 +212,7 @@
                             <span id="recap-debt-payment-total" class="font-bold text-purple-700">Rp 0</span>
                         </p>
                         <ul id="recap-debt-payment-list" class="list-disc ml-6 text-xs text-gray-600 italic">
-                            </ul>
+                        </ul>
                     </div>
                     
                     <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-indigo-300">
@@ -238,7 +235,7 @@
                 <div id="transaction-list-container">
                     <h2 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota Hari Ini (<span id="list-count">0</span>)</h2>
                     <ul id="transaction-list" class="space-y-3">
-                        </ul>
+                    </ul>
                 </div>
             </section>
 
@@ -307,7 +304,7 @@
                                 <span id="detail-recap-debt-payment-total" class="font-bold text-pink-700">Rp 0</span>
                             </p>
                             <ul id="detail-recap-debt-payment-list" class="list-disc ml-6 text-xs text-gray-600 italic">
-                                </ul>
+                            </ul>
                         </div>
                         
                         <p class="flex justify-between text-lg font-extrabold pt-2 border-t border-purple-300">
@@ -330,7 +327,7 @@
                     <div class="mt-6">
                         <h3 class="text-xl font-bold text-gray-700 mb-3">Daftar Nota Dibuat Hari Ini</h3>
                         <ul id="history-transaction-list" class="space-y-3">
-                            </ul>
+                        </ul>
                     </div>
                 </div>
             </section>
@@ -504,7 +501,6 @@
             return `${year}-${month}-${day}`;
         }
         
-        // Helper untuk mendapatkan tanggal dari DateTimeString (YYYY-MM-DD HH:MM:SS)
         function getDateFromDateTimeString(dateTimeString) {
             return dateTimeString ? dateTimeString.split(' ')[0] : null;
         }
@@ -523,15 +519,12 @@
                 const storedOrders = localStorage.getItem(STORAGE_ORDERS_KEY);
                 orders = storedOrders ? JSON.parse(storedOrders) : [];
                 
-                // Initialize/Sanitize paymentHistory and paidInDay for old transactions if needed
                 orders = orders.map(tx => {
                     const sanitizedTx = {
                         ...tx,
                         paymentHistory: tx.paymentHistory || [],
-                        // Ensure paidInDay exists for paid transactions
                         paidInDay: tx.paidInDay || (tx.isPaid && tx.paidAt ? getDateFromDateTimeString(tx.paidAt) : null)
                     };
-                    // Sanitize paymentHistory paidInDay
                     sanitizedTx.paymentHistory = sanitizedTx.paymentHistory.map(ph => ({
                         ...ph,
                         paidInDay: ph.paidInDay || getDateFromDateTimeString(ph.paidAt)
@@ -835,14 +828,14 @@
 
         function renderKasirToday() {
             const todayOrders = orders.filter(tx => tx.date === activeDay);
-            const recap = calculateRecap(orders, activeDay); // Kirim semua orders + tanggal aktif
+            const recap = calculateRecap(orders, activeDay); 
             
             document.getElementById('recap-date').textContent = activeDay;
             document.getElementById('recap-total-tx').textContent = recap.totalTx;
             document.getElementById('recap-cash').textContent = formatRupiah(recap.cash);
             document.getElementById('recap-qris').textContent = formatRupiah(recap.qris);
             document.getElementById('recap-transfer').textContent = formatRupiah(recap.transfer);
-            document.getElementById('recap-total-all').textContent = formatRupiah(recap.totalAllPaid + recap.totalDebtPayment); // Total Kas Hari Ini
+            document.getElementById('recap-total-all').textContent = formatRupiah(recap.totalAllPaid + recap.totalDebtPayment); 
             
             document.getElementById('recap-debt-payment-total').textContent = formatRupiah(recap.totalDebtPayment);
             
@@ -851,7 +844,8 @@
             if (recap.debtPaymentList.length > 0) {
                 recap.debtPaymentList.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Nota Tgl: ${item.notaDate})`;
+                    const notaDisplay = item.nota ? `#${item.nota} ` : '';
+                    li.textContent = `${notaDisplay}${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Nota Tgl: ${item.notaDate})`;
                     debtListEl.appendChild(li);
                 });
             } else {
@@ -863,17 +857,10 @@
             document.getElementById('recap-unpaid').textContent = `${recap.unpaid} Nota`;
             document.getElementById('recap-unpaid-amount').textContent = formatRupiah(recap.totalUnpaidAmount);
             
-            // --- BAGIAN YANG DIHAPUS DARI TAMPILAN KASIR HARI INI ---
-            // document.getElementById('recap-proses').textContent = recap.statusCount.PROSES;
-            // document.getElementById('recap-selesai').textContent = recap.statusCount.SELESAI;
-            // document.getElementById('recap-diambil').textContent = recap.statusCount.DIAMBIL;
-            // document.getElementById('recap-ilang').textContent = recap.statusCount.ILANG;
-
             const listElement = document.getElementById('transaction-list');
             listElement.innerHTML = '';
             document.getElementById('list-count').textContent = todayOrders.length;
             
-            // Perbaikan bug: Pastikan list diisi
             if (todayOrders.length === 0) {
                 listElement.innerHTML = '<p class="text-gray-500 italic p-3 text-center">Belum ada nota hari ini.</p>';
             } else {
@@ -888,39 +875,29 @@
             const transactionsCreatedToday = allTransactions.filter(tx => tx.date === targetDate);
             
             const recap = {
-                totalTx: transactionsCreatedToday.length, // Total nota dibuat hari ini
+                totalTx: transactionsCreatedToday.length, 
                 cash: 0,
                 qris: 0,
                 transfer: 0,
-                totalAllPaid: 0, // Hanya nota yang dibuat dan dibayar di targetDate (Pemasukan Normal)
+                totalAllPaid: 0, 
                 unpaid: 0,
                 totalUnpaidAmount: 0,
                 totalDebtPayment: 0,
-                debtPaymentList: [], // { customer, amount, method, notaDate }
+                debtPaymentList: [], 
                 statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0, ILANG: 0 }
             };
 
-            // 1. Hitung Piutang dan Status Nota yang DIBUAT hari ini
             transactionsCreatedToday.forEach(tx => {
-                
-                // Hitung Status
                 if (tx.status in recap.statusCount) {
                     recap.statusCount[tx.status]++;
                 }
-                
-                // Hitung Piutang
                 if (!tx.isPaid && tx.total > 0) {
                     recap.unpaid++;
                     recap.totalUnpaidAmount += tx.total;
                 }
-
             });
             
-            // 2. Hitung Pemasukan Normal (Nota dibuat dan uang diterima HARI INI)
             allTransactions.forEach(tx => {
-                // Syarat Pemasukan Normal:
-                // 1. Lunas (isPaid = true)
-                // 2. Tanggal Nota (tx.date) SAMA dengan Tanggal Penerimaan (tx.paidInDay)
                 if (tx.isPaid && tx.paidInDay === targetDate && tx.date === targetDate) {
                     if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
                     if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
@@ -931,15 +908,13 @@
             recap.totalAllPaid = recap.cash + recap.qris + recap.transfer;
 
 
-            // 3. Hitung Pelunasan Utang (Pembayaran yang terjadi HARI INI untuk nota yang dibuat di hari lain)
             allTransactions.forEach(tx => {
-                // Catat pembayaran yang masuk ke hari ini yang BUKAN merupakan pembayaran normal (yaitu pembayaran utang)
                 if (tx.paymentHistory && tx.paymentHistory.length > 0) {
                     tx.paymentHistory.forEach(payment => {
-                        // Cek apakah uangnya masuk di targetDate (paidInDay)
                         if (payment.paidInDay === targetDate) {
                             recap.totalDebtPayment += payment.amount;
                             recap.debtPaymentList.push({
+                                nota: tx.nota,
                                 customer: tx.customer,
                                 amount: payment.amount,
                                 method: payment.method,
@@ -948,11 +923,10 @@
                         }
                     });
                 }
-                // Jika nota adalah utang yang dilunasi hari ini TAPI BELUM punya paymentHistory (ini utk skenario pertama kali lunas)
-                // Kita cek apakah paidInDay == targetDate, TAPI tx.date != targetDate
                 else if (tx.isPaid && tx.paidInDay === targetDate && tx.date !== targetDate) {
                      recap.totalDebtPayment += tx.total;
                      recap.debtPaymentList.push({
+                         nota: tx.nota,
                          customer: tx.customer,
                          amount: tx.total,
                          method: tx.paymentMethod,
@@ -964,7 +938,6 @@
             return recap;
         }
 
-        // FUNGSI KHUSUS UNTUK HISTORY DETAIL SESUAI PERMINTAAN USER
         function calculateHistoryDetailRecap(allTransactions, targetDate) {
              const transactionsCreatedOnTargetDate = allTransactions.filter(tx => tx.date === targetDate);
              
@@ -973,33 +946,29 @@
                 cash: 0,
                 qris: 0,
                 transfer: 0,
-                totalDebtPaid: 0, // Total utang dari nota ini yang dibayar di hari lain
-                debtPaidList: [], // Detail utang dibayar lintas hari
-                totalAllPaid: 0, // Total NILAI LUNAS (Hanya Pemasukan Normal di Hari Nota Dibuat)
-                unpaid: 0, // Sisa piutang aktif dari nota tanggal ini
+                totalDebtPaid: 0, 
+                debtPaidList: [], 
+                totalAllPaid: 0, 
+                unpaid: 0, 
                 totalUnpaidAmount: 0,
                 statusCount: { PROSES: 0, SELESAI: 0, DIAMBIL: 0, ILANG: 0 }
              };
 
              transactionsCreatedOnTargetDate.forEach(tx => {
-                 // Hitung Status (dipertahankan di logika, hanya dihapus dari tampilan)
                  if (tx.status in recap.statusCount) {
                      recap.statusCount[tx.status]++;
                  }
 
-                 // Hitung Pembayaran
                  if (tx.isPaid) {
-                     // Cek Lunas Normal (Dibayar di hari yang sama)
                      if (tx.paidInDay === targetDate) {
                          if (tx.paymentMethod === 'CASH') recap.cash += tx.total;
                          if (tx.paymentMethod === 'QRIS') recap.qris += tx.total;
                          if (tx.paymentMethod === 'TRANSFER') recap.transfer += tx.total;
                      } 
-                     
-                     // Cek Lunas Lintas Hari
                      else if (tx.paidInDay !== targetDate) {
                          recap.totalDebtPaid += tx.total;
                          recap.debtPaidList.push({
+                             nota: tx.nota,
                              customer: tx.customer,
                              amount: tx.total,
                              method: tx.paymentMethod,
@@ -1008,14 +977,12 @@
                      }
                  }
                  
-                 // Hitung Piutang Aktif (Piutang yang BELUM lunas SAMA SEKALI)
                  if (!tx.isPaid) {
                      recap.unpaid++;
                      recap.totalUnpaidAmount += tx.total;
                  }
              });
 
-             // Hanya hitung Pemasukan Normal untuk Total Nilai Lunas (sesuai permintaan user)
              recap.totalAllPaid = recap.cash + recap.qris + recap.transfer; 
              return recap;
         }
@@ -1088,7 +1055,6 @@
                         paidBadge.textContent = `LUNAS ${tx.paymentMethod}`;
                     }
                 } else {
-                    // Fallback for old/corrupt data where paidInDay is missing
                     paidBadge.className = 'py-1 px-2 rounded-full bg-green-500 text-white';
                     paidBadge.textContent = `LUNAS (${paidMethodDisplay})`;
                 }
@@ -1098,7 +1064,6 @@
             }
             badges.appendChild(paidBadge);
 
-            // Tambahkan badge riwayat pelunasan utang
             if (tx.paymentHistory && tx.paymentHistory.length > 0) {
                 const historyBadge = document.createElement('span');
                 historyBadge.className = 'py-1 px-2 rounded-full bg-purple-100 text-purple-700';
@@ -1200,12 +1165,10 @@
                 }
                 
                 if (pricePerKgManual > 0) {
-                    // Jika ada override manual, gunakan manual price
                     total = Math.round(weight * pricePerKgManual);
                     finalPricePerKg = pricePerKgManual;
                     itemType = 'kiloan_manual';
                 } else {
-                    // Gunakan harga tiered/calculated
                     total = finalTierTotal;
                     finalPricePerKg = finalTierPerKg;
                 }
@@ -1324,13 +1287,13 @@
             let notaNotes = document.getElementById('nota-notes').value.trim();
             
             let paidAt = null;
-            let paidInDay = null; // New field
+            let paidInDay = null; 
 
             if (isPaid) {
                  const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked:not(:disabled)');
                  paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : 'CASH';
                  paidAt = getCurrentDateTimeString();
-                 paidInDay = activeDay; // Uang masuk di hari aktif
+                 paidInDay = activeDay; 
             }
             
             if (activeNota.total === 0) {
@@ -1352,9 +1315,9 @@
                 paymentMethod: isPaid ? paymentMethod : null,
                 isPaid: isPaid,
                 paidAt: paidAt,
-                paidInDay: paidInDay, // Menyimpan tanggal uang diterima
+                paidInDay: paidInDay, 
                 status: "PROSES",
-                paymentHistory: [] // FIELD BARU UNTUK MENCATAT PELUNASAN UTANG LINTAS HARI
+                paymentHistory: [] 
             };
 
             orders.unshift(finalNota);
@@ -1392,7 +1355,7 @@
             const notaId = parseInt(document.getElementById('pay-modal-confirm').dataset.txid);
             const selectedMethod = document.querySelector('input[name="payMethod"]:checked').value;
             const paidTime = getCurrentDateTimeString();
-            const paidDate = activeDay; // TANGGAL PENTING: Mengambil tanggal dari hari aktif saat ini
+            const paidDate = activeDay; 
             
             const txIndex = orders.findIndex(tx => tx.id === notaId);
 
@@ -1406,25 +1369,21 @@
                     return;
                 }
 
-                // 1. Cek apakah ini pelunasan di luar hari nota dibuat
                 const isDebtPayment = tx.date !== paidDate;
                 
-                // 2. Jika pelunasan di hari yang berbeda, catat ke paymentHistory (utang/piutang)
                 if (isDebtPayment) {
-                    // Hanya catat di paymentHistory jika pembayaran lintas hari
                     tx.paymentHistory.push({
                         paidAt: paidTime,
                         method: selectedMethod,
                         amount: tx.total,
-                        paidInDay: paidDate // Tanggal di mana uang diterima (Hari Aktif saat ini)
+                        paidInDay: paidDate 
                     });
                 }
                 
-                // 3. Update status lunas di nota
                 tx.isPaid = true;
                 tx.paymentMethod = selectedMethod;
                 tx.paidAt = paidTime;
-                tx.paidInDay = paidDate; // Tulis tanggal penerimaan uang terakhir (untuk rekap)
+                tx.paidInDay = paidDate; 
                 
                 
                 saveData();
@@ -1529,8 +1488,8 @@
                     tx.isPaid = false;
                     tx.paymentMethod = null;
                     tx.paidAt = null;
-                    tx.paidInDay = null; // Hapus tanggal penerimaan
-                    tx.paymentHistory = []; // Reset payment history saat batal lunas
+                    tx.paidInDay = null; 
+                    tx.paymentHistory = []; 
                     
                     saveData();
                     switchView(currentView, currentHistoryDate);
@@ -1649,7 +1608,6 @@
                     
                     if (Array.isArray(importedOrders) && importedOrders.every(tx => tx.id && tx.date && tx.total !== undefined)) {
                         
-                        // Sanitize imported data
                         importedOrders = importedOrders.map(tx => {
                             const sanitizedTx = {
                                 ...tx,
@@ -1691,16 +1649,15 @@
             historyDayList.innerHTML = '';
             historyDayList.appendChild(noHistoryMessageContainer);
 
-            // Group transactions by ALL dates involved (creation date AND payment dates)
             const allInvolvedDates = new Set();
             orders.forEach(tx => {
-                allInvolvedDates.add(tx.date); // Tanggal pembuatan
+                allInvolvedDates.add(tx.date); 
                 if (tx.paidInDay) {
-                     allInvolvedDates.add(tx.paidInDay); // Tanggal pelunasan jika lunas saat dibuat/diambil
+                     allInvolvedDates.add(tx.paidInDay); 
                 }
                 if (tx.paymentHistory && tx.paymentHistory.length > 0) {
                     tx.paymentHistory.forEach(payment => {
-                        allInvolvedDates.add(payment.paidInDay); // Tanggal pembayaran utang
+                        allInvolvedDates.add(payment.paidInDay); 
                     });
                 }
             });
@@ -1714,7 +1671,7 @@
             noHistoryMessageContainer.style.display = 'none';
 
             sortedDates.forEach(date => {
-                const recap = calculateRecap(orders, date); // Hitung rekap untuk tanggal ini (pemasukan normal dan utang)
+                const recap = calculateRecap(orders, date); 
                 
                 const dayOrdersCreated = orders.filter(tx => tx.date === date).length;
 
@@ -1751,7 +1708,6 @@
         }
 
         function renderHistoryDetail(date) {
-            // Menggunakan fungsi khusus yang menampilkan data Lunas Lintas Hari pada TANGGAL NOTA DIBUAT
             const recap = calculateHistoryDetailRecap(orders, date); 
 
             document.getElementById('detail-recap-date').textContent = date;
@@ -1762,10 +1718,8 @@
             document.getElementById('detail-recap-qris').textContent = formatRupiah(recap.qris);
             document.getElementById('detail-recap-transfer').textContent = formatRupiah(recap.transfer);
             
-            // Total Nilai LUNAS (Hanya Pemasukan Normal di Hari Nota Dibuat)
             document.getElementById('detail-recap-total-all').textContent = formatRupiah(recap.totalAllPaid);
 
-            // Detail Pelunasan Utang Lintas Hari
             document.getElementById('detail-recap-debt-payment-total').textContent = formatRupiah(recap.totalDebtPaid);
             
             const debtListEl = document.getElementById('detail-recap-debt-payment-list');
@@ -1773,7 +1727,8 @@
             if (recap.debtPaidList.length > 0) {
                 recap.debtPaidList.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Dibayar Tgl: ${item.paidInDay})`;
+                    const notaDisplay = item.nota ? `#${item.nota} ` : '';
+                    li.textContent = `${notaDisplay}${item.customer} (${formatRupiah(item.amount)}) - ${item.method} (Dibayar Tgl: ${item.paidInDay})`;
                     debtListEl.appendChild(li);
                 });
             } else {
@@ -1788,7 +1743,6 @@
             const listElement = document.getElementById('history-transaction-list');
             listElement.innerHTML = '';
             
-            // Hanya tampilkan nota yang dibuat pada tanggal ini
             orders.filter(tx => tx.date === date).forEach(tx => {
                 listElement.appendChild(createNotaListItem(tx, false));
             });
@@ -1798,13 +1752,12 @@
 
         async function deleteHistoryDay(date) {
              const isConfirmed = await customModal("Konfirmasi Hapus History", 
-                 `Yakin ingin **MENGHAPUS SEMUA** nota yang **DIBUAT** pada tanggal <strong>${date}</strong>? Tindakan ini tidak dapat dibatalkan. Catatan: Nota dari hari lain yang dilunasi hari ini tidak akan terhapus.`, 
-                 true, 
-                 "Hapus Permanen"
-               );
+                  `Yakin ingin **MENGHAPUS SEMUA** nota yang **DIBUAT** pada tanggal <strong>${date}</strong>? Tindakan ini tidak dapat dibatalkan. Catatan: Nota dari hari lain yang dilunasi hari ini tidak akan terhapus.`, 
+                  true, 
+                  "Hapus Permanen"
+                );
 
             if (isConfirmed) {
-                // Hanya hapus transaksi yang tanggal buatnya sama dengan tanggal history
                 orders = orders.filter(tx => tx.date !== date);
                 saveData();
                 
@@ -1818,7 +1771,6 @@
             
             setPriceOnServiceChange();
             
-            // Pengecekan inisial view: jika ada activeDay, default ke kasir. Jika tidak, default ke history list
             if (activeDay) {
                  switchView('kasir');
             } else {
