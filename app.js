@@ -60,11 +60,11 @@
             'Selimut': {
                 type: 'satuan',
                 rates: {
-                    'Kecil': 10000,
+                    'Kecil': 15000,
                     'Besar': 15000,
                 },
                 sizes: {
-                    'Kecil': 'Kecil (Rp 10.000)',
+                    'Kecil': 'Kecil (Rp 15.000)',
                     'Besar': 'Besar (Rp 15.000)'
                 }
             },
@@ -804,6 +804,14 @@
             const serviceData = PRICE_DATA[service];
 
             const weight = serviceData.type.includes('kiloan') ? parseFloat(document.getElementById('weight').value) || 0 : 0;
+            if (service === 'Cuci Saja' && weight < 5.5) {
+                    return customModal(
+                        "Minimal Berat Tidak Terpenuhi", 
+                        "Layanan **Cuci Saja** minimal harus **5.5 kg**. <br><br>Berat saat ini: " + weight + " kg", 
+                        false, 
+                        "OK"
+                    );
+                }
             const pricePerKgInput = serviceData.type.includes('kiloan') ? parseInt(document.getElementById('pricePerKg').value) || 0 : 0;
             const qty = serviceData.type === 'satuan' ? parseInt(document.getElementById('qty').value) || 0 : 0;
             const size = serviceData.type === 'satuan' ? document.getElementById('size').value : '';
