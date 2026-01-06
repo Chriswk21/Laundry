@@ -437,6 +437,9 @@
 
         function renderKasirToday() {
             const todayOrders = orders.filter(tx => tx.date === activeDay);
+            todayOrders.sort((a, b) => {
+                return (a.nota || "").localeCompare(b.nota || "", undefined, {numeric: true, sensitivity: 'base'});
+            });
             const recap = calculateRecap(orders, activeDay); 
             
             document.getElementById('recap-date').textContent = activeDay;
@@ -1360,7 +1363,15 @@
             const listElement = document.getElementById('history-transaction-list');
             listElement.innerHTML = '';
             
-            orders.filter(tx => tx.date === date).forEach(tx => {
+            const filteredOrders = orders.filter(tx => tx.date === date);
+            filteredOrders.sort((a, b) => {
+                return (a.nota || "").localeCompare(b.nota || "", undefined, {
+                    numeric: true, 
+                    sensitivity: 'base'
+                });
+            });
+
+            filteredOrders.forEach(tx => {
                 listElement.appendChild(createNotaListItem(tx, false));
             });
 
